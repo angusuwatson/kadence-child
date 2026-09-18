@@ -636,60 +636,18 @@
 
 /* =====================================================================
    CHECKOUT (MotoPress premium, shortcode [mphb_checkout])
-   Full-width layout with dense 3-column field rows on desktop.
+   Two columns on desktop: stay details + guest form (left), price
+   summary + total + confirm button (right card). Single column below.
+   ================================================================== */
+
+/* =====================================================================
+   CHECKOUT (MotoPress premium, shortcode [mphb_checkout])
+   Full-width layout. Dense 3-column field rows on desktop so the form
+   uses the available width; price summary + confirm flow below.
    ================================================================== */
 
 .mphb_sc_checkout-form {
 	display: block;
-}
-
-@media (min-width: 600px) {
-	.mphb_sc_checkout-form {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 1em 1.5em;
-	}
-
-	.mphb_sc_checkout-form .mphb-booking-details,
-	.mphb_sc_checkout-form .mphb-customer-details {
-		grid-column: 1 / -1;
-	}
-
-	.mphb_sc_checkout-form .mphb-booking-details {
-		grid-row: 1;
-	}
-
-	.mphb_sc_checkout-form .mphb-customer-details {
-		grid-row: 2;
-	}
-
-	.mphb_sc_checkout-form .mphb-coupon-code-wrapper {
-		grid-column: 1;
-		grid-row: 3;
-	}
-
-	.mphb_sc_checkout-form .mphb-room-price-breakdown-wrapper {
-		grid-column: 2 / -1;
-		grid-row: 3;
-	}
-
-	.mphb_sc_checkout-form .mphb-total-price,
-	.mphb_sc_checkout-form .mphb-errors-wrapper,
-	.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper {
-		grid-column: 1 / -1;
-	}
-
-	.mphb_sc_checkout-form .mphb-total-price {
-		grid-row: 4;
-	}
-
-	.mphb_sc_checkout-form .mphb-errors-wrapper {
-		grid-row: 5;
-	}
-
-	.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper {
-		grid-row: 6;
-	}
 }
 
 /* Summary card */
@@ -756,10 +714,6 @@
 	margin-top: 0;
 }
 
-.mphb_sc_checkout-form .mphb-room-type-title > span {
-	display: none;
-}
-
 /* Guest fields : inputs breathe */
 .mphb_sc_checkout-form .mphb-customer-details input[type="text"],
 .mphb_sc_checkout-form .mphb-customer-details input[type="email"],
@@ -770,31 +724,6 @@
 	border: 1px solid #cfd4e2;
 	border-radius: 8px;
 	font: inherit;
-}
-
-.mphb_sc_checkout-form .mphb-customer-note textarea {
-	height: 3.2em;
-	min-height: 3.2em;
-	resize: vertical;
-}
-
-.mphb_sc_checkout-form .mphb-coupon-code-wrapper {
-	background: #fff;
-	border: 1px solid #e4e7f0;
-	border-radius: 12px;
-	padding: 1.1em 1.3em;
-}
-
-.mphb_sc_checkout-form .mphb-coupon-code-wrapper input[type="text"] {
-	width: 100%;
-	padding: 0.55em 0.7em;
-	border: 1px solid #cfd4e2;
-	border-radius: 8px;
-	font: inherit;
-}
-
-.mphb_sc_checkout-form .mphb-coupon-code-wrapper button {
-	margin-top: 0.6em;
 }
 
 /* Dense field rows on desktop. Sections become 3-column grids matching
@@ -808,23 +737,7 @@
 
 	.mphb_sc_checkout-form .mphb-booking-details .mphb-booking-details-title,
 	.mphb_sc_checkout-form .mphb-booking-details .mphb-reserve-rooms-details {
-		grid-column: 1;
-		grid-row: 1;
-	}
-
-	.mphb_sc_checkout-form .mphb-booking-details .mphb-check-in-date {
-		grid-column: 2;
-		grid-row: 1;
-	}
-
-	.mphb_sc_checkout-form .mphb-booking-details .mphb-check-out-date {
-		grid-column: 3;
-		grid-row: 1;
-	}
-
-	.mphb_sc_checkout-form .mphb-booking-details .mphb-reserve-rooms-details {
 		grid-column: 1 / -1;
-		grid-row: 2;
 	}
 
 	/* Room block: Logement #1 | Type d'herbergement | (blank)
@@ -870,20 +783,6 @@
 	.mphb_sc_checkout-form .mphb-customer-details .mphb-required-fields-tip,
 	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-note {
 		grid-column: 1 / -1;
-	}
-
-	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-details-title {
-		grid-column: 1;
-		grid-row: 1;
-	}
-
-	.mphb_sc_checkout-form .mphb-customer-details .mphb-required-fields-tip {
-		grid-column: 2 / -1;
-		grid-row: 1;
-	}
-
-	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-note {
-		grid-row: 4;
 	}
 
 	.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper input[type="submit"] {
