@@ -21,8 +21,36 @@ if ( file_exists( get_stylesheet_directory() . '/lib/plugin-update-checker/plugi
 		'kadence-child'
 	);
 	$lgfThemeUpdater->setBranch( 'main' );
-}
+	$lgfThemeUpdater->setCheckPeriod( 1 ); // re-check at least hourly instead of the default 7 days
 
+	// Force a fresh check whenever Dashboard → Updates or Appearance → Themes loads,
+	// so a push shows up without waiting for the checked-transient to expire.
+	add_action( 'load-update-core', function () { global $lgfThemeUpdater; $lgfThemeUpdater->checkForUpdates(); } );
+	add_action( 'load-appearance_page_themes', function () { global $lgfThemeUpdater; $lgfThemeUpdater->checkForUpdates(); } );
+
+	// Diagnostic probe: log into wp-admin, then open /?lgf_probe=1
+	add_action( 'init', function () {
+		if ( isset( $_GET['lgf_probe'] ) && current_user_can( 'manage_options' ) ) {
+			header( 'Content-Type: text/plain; charset=utf-8' );
+			$theme = wp_get_theme();
+			echo 'Theme folder: ' . $theme->get_template() . PHP_EOL;
+			echo 'Theme name:   ' . $theme->get( 'Name' ) . PHP_EOL;
+			echo 'Installed version (style.css): ' . $theme->get( 'Version' ) . PHP_EOL;
+			echo 'PUC lib present: ' . ( file_exists( get_stylesheet_directory() . '/lib/plugin-update-checker/plugin-update-checker.php' ) ? 'yes' : 'NO' ) . PHP_EOL;
+			$check = null;
+			if ( isset( $GLOBALS['lgfThemeUpdater'] ) ) {
+				$check = $GLOBALS['lgfThemeUpdater']->checkForUpdates();
+			}
+			echo 'Updater active: ' . ( isset( $GLOBALS['lgfThemeUpdater'] ) ? 'yes' : 'NO' ) . PHP_EOL;
+			echo 'Forced check result: ' . ( is_object( $check ) ? 'update found' : 'none / failed' ) . PHP_EOL;
+			if ( is_object( $check ) ) {
+				echo 'Update version: ' . $check->version . PHP_EOL;
+				echo 'Update from:    ' . $check->download_url . PHP_EOL;
+			}
+			exit;
+		}
+	}, 9 );
+}
 
 // Enqueue the parent theme's styles
 function kadence_child_enqueue_styles() {
