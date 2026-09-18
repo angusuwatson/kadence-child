@@ -48,6 +48,67 @@
 			return map;
 		}
 
+		// Room cards are priced for the current search occupancy. Fetch the same
+		// result set at each room's maximum adult capacity so adding guests does
+		// not reveal a higher price later.
+		function updateMaxCapacityPrices() {
+			var sections = sectionsById();
+			var capacities = {};
+
+			Object.keys(sections).forEach(function (id) {
+				var card = sections[id].closest('.mphb-room-type');
+				var capacityEl = card ? card.querySelector('.mphb-room-type-total-capacity .mphb-attribute-value') : null;
+				var match = capacityEl ? capacityEl.textContent.match(/\d+/) : null;
+
+				if (match) {
+					capacities[match[0]] = true;
+				}
+			});
+
+			Object.keys(capacities).forEach(function (capacity) {
+				var url = new URL(window.location.href);
+				url.searchParams.set('mphb_adults', capacity);
+				url.searchParams.set('mphb_children', '0');
+
+				window.fetch(url.toString(), { credentials: 'same-origin' })
+					.then(function (response) { return response.text(); })
+					.then(function (html) {
+						var parsed = new DOMParser().parseFromString(html, 'text/html');
+
+						parsed.querySelectorAll('.mphb-reserve-room-section[data-room-type-id]').forEach(function (source) {
+							var id = source.getAttribute('data-room-type-id');
+							var target = sections[id];
+							var sourcePrice = source.getAttribute('data-room-price');
+							var targetCard = target ? target.closest('.mphb-room-type') : null;
+							var targetCapacityEl = targetCard
+								? targetCard.querySelector('.mphb-room-type-total-capacity .mphb-attribute-value')
+								: null;
+							var targetCapacity = targetCapacityEl ? targetCapacityEl.textContent.match(/\d+/) : null;
+							var sourcePriceEl = source.closest('.mphb-room-type')
+								? source.closest('.mphb-room-type').querySelector('.mphb-regular-price .mphb-price')
+								: null;
+							var targetPriceEl = targetCard
+								? targetCard.querySelector('.mphb-regular-price .mphb-price')
+								: null;
+
+							if (!target || !sourcePrice || !targetCapacity || targetCapacity[0] !== capacity) {
+								return;
+							}
+
+							target.setAttribute('data-room-price', sourcePrice);
+							if (sourcePriceEl && targetPriceEl) {
+								targetPriceEl.innerHTML = sourcePriceEl.innerHTML;
+							}
+						});
+
+						render();
+					})
+					.catch(function () {
+						// Keep the server-rendered price if an auxiliary request fails.
+					});
+			});
+		}
+
 		function formatMoney(value) {
 			if (window.MPHB && typeof MPHB.format_price === 'function') {
 				return MPHB.format_price(value, { trim_zeros: true });
@@ -436,6 +497,7 @@
 
 		seedFromRecommendation();
 		render();
+		updateMaxCapacityPrices();
 		stripMessagePrefixes(wrapper);
 
 		// Barres en haut de l'ecran (entete sticky, barre admin, menu pin...).
