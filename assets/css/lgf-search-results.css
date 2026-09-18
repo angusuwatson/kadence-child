@@ -714,6 +714,10 @@
 	margin-top: 0;
 }
 
+.mphb_sc_checkout-form .mphb-room-type-title > span {
+	display: none;
+}
+
 /* Guest fields : inputs breathe */
 .mphb_sc_checkout-form .mphb-customer-details input[type="text"],
 .mphb_sc_checkout-form .mphb-customer-details input[type="email"],
@@ -802,6 +806,62 @@
 
 	.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper input[type="submit"] {
 		width: 100%;
+	}
+}
+
+/* Keep coupon beside the two-column price summary when enabled. */
+@media (min-width: 600px) {
+	.mphb_sc_checkout-form {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1em 1.5em;
+	}
+
+	.mphb_sc_checkout-form .mphb-booking-details,
+	.mphb_sc_checkout-form .mphb-customer-details {
+		grid-column: 1 / -1;
+	}
+
+	.mphb_sc_checkout-form .mphb-booking-details {
+		grid-row: 1;
+	}
+
+	.mphb_sc_checkout-form .mphb-customer-details {
+		grid-row: 2;
+	}
+
+	.mphb_sc_checkout-form .mphb-coupon-code-wrapper {
+		grid-column: 1;
+		grid-row: 3;
+	}
+
+	.mphb_sc_checkout-form .mphb-room-price-breakdown-wrapper {
+		grid-column: 2 / -1;
+		grid-row: 3;
+	}
+
+	.mphb_sc_checkout-form .mphb-total-price,
+	.mphb_sc_checkout-form .mphb-errors-wrapper,
+	.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper,
+	.mphb_sc_checkout-form .mphb-checkout-terms-wrapper,
+	.mphb_sc_checkout-form .mphb-checkout-text-wrapper {
+		grid-column: 1 / -1;
+	}
+
+	.mphb_sc_checkout-form .mphb-total-price {
+		grid-row: 4;
+	}
+
+	.mphb_sc_checkout-form .mphb-errors-wrapper {
+		grid-row: 5;
+	}
+
+	.mphb_sc_checkout-form .mphb-checkout-terms-wrapper {
+		grid-row: 6;
+	}
+
+	.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper {
+		grid-row: 7;
 	}
 }
 
