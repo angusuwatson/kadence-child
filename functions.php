@@ -122,6 +122,16 @@ function lgf_search_results_hide_price_label( $translation, $text, $domain ) {
 }
 add_filter( 'gettext', 'lgf_search_results_hide_price_label', 10, 3 );
 
+// Checkout: shorten the booking-details heading.
+function lgf_checkout_booking_details_title( $translation, $text, $domain ) {
+	if ( 'motopress-hotel-booking' === $domain && 'Booking Details' === $text
+		&& function_exists( 'mphb_is_checkout_page' ) && mphb_is_checkout_page() ) {
+		return 'Réservation';
+	}
+	return $translation;
+}
+add_filter( 'gettext', 'lgf_checkout_booking_details_title', 10, 3 );
+
 
 // Search results: the reservation cart replaces the recommendation block and is
 // pre-filled with the recommended combination (see assets/js/lgf-search-results.js).
@@ -136,13 +146,13 @@ function lgf_enqueue_search_results_script() {
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/css/lgf-search-results.css',
 			array(),
-			'1.0.11'
+			'1.0.12'
 		);
 		wp_enqueue_script(
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/js/lgf-search-results.js',
 			array( 'jquery', 'mphb' ),
-			'1.0.11',
+			'1.0.12',
 			true
 		);
 	}
@@ -157,7 +167,7 @@ function lgf_enqueue_checkout_css() {
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/css/lgf-search-results.css',
 			array(),
-			'1.0.11'
+			'1.0.12'
 		);
 	}
 }

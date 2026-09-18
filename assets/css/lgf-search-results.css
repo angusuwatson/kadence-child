@@ -735,9 +735,24 @@
 		gap: 0.2em 1.5em;
 	}
 
-	.mphb_sc_checkout-form .mphb-booking-details .mphb-booking-details-title,
+	.mphb_sc_checkout-form .mphb-booking-details .mphb-booking-details-title {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.mphb_sc_checkout-form .mphb-booking-details .mphb-check-in-date {
+		grid-column: 2;
+		grid-row: 1;
+	}
+
+	.mphb_sc_checkout-form .mphb-booking-details .mphb-check-out-date {
+		grid-column: 3;
+		grid-row: 1;
+	}
+
 	.mphb_sc_checkout-form .mphb-booking-details .mphb-reserve-rooms-details {
 		grid-column: 1 / -1;
+		grid-row: 2;
 	}
 
 	/* Room block: Logement #1 | Type d'herbergement | (blank)
@@ -754,7 +769,7 @@
 	}
 
 	.mphb_sc_checkout-form .mphb-room-details .mphb-room-type-title {
-		grid-column: 2;
+		grid-column: 2 / -1;
 		grid-row: 1;
 	}
 
