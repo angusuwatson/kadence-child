@@ -797,6 +797,68 @@
 	margin-top: 0.6em;
 }
 
+/* Final checkout rows: coupon + price, then payment + total */
+@media (min-width: 600px) {
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-address1,
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-city,
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-zip {
+		grid-row: 4;
+	}
+
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-address1 {
+		grid-column: 1;
+	}
+
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-city {
+		grid-column: 2;
+	}
+
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-zip {
+		grid-column: 3;
+	}
+
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-note {
+		grid-column: 1 / -1;
+		grid-row: 5;
+	}
+
+	.mphb_sc_checkout-form .mphb-billing-fields-wrapper {
+		grid-column: 1 / 3;
+		grid-row: 4;
+	}
+
+	.mphb_sc_checkout-form .mphb-total-price {
+		grid-column: 3;
+		grid-row: 4;
+	}
+
+	.mphb_sc_checkout-form .mphb-checkout-terms-wrapper,
+	.mphb_sc_checkout-form .mphb-checkout-text-wrapper {
+		grid-column: 1 / -1;
+	}
+
+	.mphb_sc_checkout-form .mphb-checkout-terms-wrapper {
+		grid-row: 5;
+	}
+
+	.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper {
+		grid-row: 6;
+	}
+
+	/* Optional arrival-time field, if enabled in MotoPress settings. */
+	.mphb_sc_checkout-form .mphb-customer-arrival-time,
+	.mphb_sc_checkout-form .mphb-customer-arrival-time-wrapper {
+		grid-column: 3;
+		grid-row: 3;
+	}
+
+	/* Optional full-address state field stays alongside address fields. */
+	.mphb_sc_checkout-form .mphb-customer-state {
+		grid-column: 3;
+		grid-row: 4;
+	}
+}
+
 /* Dense field rows on desktop. Sections become 3-column grids matching
    the wireframe; notes, titles and boxes span the full width. */
 @media (min-width: 600px) {
