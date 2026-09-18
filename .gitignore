@@ -1,0 +1,3 @@
+# Manual-edit helpers, not part of the deployed theme (functions.php is the single source)
+functions-append.php
+functions-updater-top.php
