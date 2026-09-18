@@ -83,6 +83,24 @@
 			'<span class="lgf-cart-bar-chevron" aria-hidden="true">&#9662;</span>';
 		cart.insertBefore(bar, cart.firstChild);
 
+		// ---- Pastille de panier réduit (chip) et bouton de fermeture -------
+
+		var chip = document.createElement('button');
+		chip.type = 'button';
+		chip.className = 'lgf-cart-chip';
+		chip.setAttribute('aria-expanded', 'false');
+		chip.setAttribute('aria-label', 'Voir le detail de la selection');
+		chip.innerHTML = '<svg class="lgf-cart-chip-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 12h-13z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>' +
+			'<span class="lgf-cart-chip-badge">0</span>';
+		cart.insertBefore(chip, bar.nextSibling);
+
+		var closeBtn = document.createElement('button');
+		closeBtn.type = 'button';
+		closeBtn.className = 'lgf-cart-close';
+		closeBtn.setAttribute('aria-label', 'Refermer le detail de la selection');
+		closeBtn.innerHTML = '&#10005;';
+		cart.appendChild(closeBtn);
+
 		var sentinel = document.createElement('div');
 		sentinel.className = 'lgf-cart-sentinel';
 		sentinel.setAttribute('aria-hidden', 'true');
@@ -159,6 +177,11 @@
 
 			bar.querySelector('.lgf-cart-bar-left').textContent = left;
 			bar.querySelector('.lgf-cart-bar-summary').textContent = count === 0 ? '' : total;
+
+			var badge = cart.querySelector('.lgf-cart-chip-badge');
+			if (badge) {
+				badge.textContent = String(count);
+			}
 		}
 
 		function render() {
@@ -239,6 +262,12 @@
 			}
 		}
 
+		function syncBarAttrs() {
+			var isExpanded = wrapper.classList.contains('lgf-cart-expanded');
+			bar.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+			chip.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+		}
+
 		// Retrait d'un logement : on déclenche le lien "Retirer" de la carte
 		// correspondante, ce qui met à jour le panier géré par MotoPress.
 		list.addEventListener('click', function (event) {
@@ -265,13 +294,37 @@
 			});
 		}
 
+		// Message "X ajoute a votre reservation" : retirer le prefixe
+		// "1 x " genere par MotoPress ("%1$d &times; &ldquo;%2$s&rdquo;").
+		function stripMessagePrefixes(root) {
+			var nodes = root.querySelectorAll('.mphb-rooms-reservation-message');
+			Array.prototype.forEach.call(nodes, function (el) {
+				if (el.textContent && /^\s*\d+\s*\u00d7/.test(el.textContent)) {
+					el.textContent = el.textContent.replace(/^\s*\d+\s*\u00d7\s*/, '');
+				}
+			});
+		}
+
+		if (window.MutationObserver) {
+			var wrapperObserver = new MutationObserver(function () {
+				window.setTimeout(function () {
+					stripMessagePrefixes(wrapper);
+				}, 0);
+			});
+			wrapperObserver.observe(wrapper, {
+				childList: true,
+				subtree: true
+			});
+		}
+
 		// ---- Réduction du panier au défilement ------------------------------
 
 		var expanded = false;
 
 		function setMinimized(minimized) {
 			wrapper.classList.toggle('lgf-cart-minimized', !!minimized);
-			bar.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+			wrapper.classList.toggle('lgf-cart-expanded', !!(minimized && expanded));
+			syncBarAttrs();
 		}
 
 		if (window.IntersectionObserver) {
@@ -281,12 +334,12 @@
 
 				if (!stuck) {
 					expanded = false;
-					wrapper.classList.remove('lgf-cart-expanded');
-					setMinimized(false);
+					wrapper.classList.remove('lgf-cart-minimized', 'lgf-cart-expanded');
+					syncBarAttrs();
 					return;
 				}
 
-				setMinimized(!expanded);
+				setMinimized(true);
 			}, { threshold: 0 });
 
 			stickyObserver.observe(sentinel);
@@ -294,15 +347,17 @@
 
 		bar.addEventListener('click', function () {
 			expanded = !expanded;
-
-			if (expanded) {
-				wrapper.classList.add('lgf-cart-expanded');
-				setMinimized(false);
-				return;
-			}
-
-			wrapper.classList.remove('lgf-cart-expanded');
 			setMinimized(sentinel.getBoundingClientRect().top < 0);
+		});
+
+		// La pastille (vue reduite) bascule le detail, comme la barre.
+		chip.addEventListener('click', function () {
+			bar.click();
+		});
+
+		closeBtn.addEventListener('click', function () {
+			expanded = false;
+			setMinimized(true);
 		});
 
 		// ---- Pré-remplissage avec la recommandation --------------------------
@@ -381,5 +436,32 @@
 
 		seedFromRecommendation();
 		render();
+		stripMessagePrefixes(wrapper);
+
+		// l'entete sticky du theme passe au-dessus du panier reduit : on
+		// positionne la pastille sous l'entete et sous son z-index.
+		function applyHeaderMetrics() {
+			var hosts = wrapper.ownerDocument.querySelectorAll('#masthead, .site-mobile-header-wrap');
+			var height = 80;
+			var zIndex = 11;
+
+			Array.prototype.forEach.call(hosts, function (el) {
+				var rect = el.getBoundingClientRect();
+				if (rect.height > height) {
+					height = rect.height;
+				}
+				var z = parseInt(window.getComputedStyle(el).zIndex, 10);
+				if (!isNaN(z) && z > zIndex) {
+					zIndex = z;
+				}
+			});
+
+			var root = wrapper.ownerDocument.documentElement;
+			root.style.setProperty('--lgf-cart-top', (height + 8) + 'px');
+			root.style.setProperty('--lgf-cart-z', String(zIndex - 6));
+		}
+
+		applyHeaderMetrics();
+		window.addEventListener('resize', applyHeaderMetrics);
 	});
 })();

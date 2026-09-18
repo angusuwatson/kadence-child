@@ -50,8 +50,8 @@
 	border-radius: 12px;
 	background: #fbfcff;
 	position: sticky;
-	top: 12px;
-	z-index: 40;
+	top: var(--lgf-cart-top, 12px);
+	z-index: var(--lgf-cart-z, 30);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -264,12 +264,7 @@
 }
 
 @media (max-width: 720px) {
-	/* Panier fixé tout en haut de l'écran */
-	.mphb_sc_search_results-wrapper > .mphb-reservation-cart {
-		top: 0;
-	}
-
-	/* Sur mobile, dates et nuits prennent trop de place : on les masque */
+		/* Sur mobile, dates et nuits prennent trop de place : on les masque */
 	.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-dates {
 		display: none !important;
 	}
@@ -281,17 +276,130 @@
 	}
 }
 
-/* Réduit : on masque le détail, la barre suffit */
+/* Réduit : pastille fixe en haut à gauche, avec compteur de logements.
+   Elle remplace la large barre qui masquait trop l'écran. */
 .mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart {
-	padding-top: 0.5em;
-	padding-bottom: 0.5em;
+	position: fixed;
+	top: var(--lgf-cart-top, 88px);
+	left: 12px;
+	z-index: var(--lgf-cart-z, 30);
+	width: auto;
+	max-width: min(340px, calc(100vw - 24px));
+	margin: 0;
+	padding: 0;
+	justify-content: center;
+	flex-wrap: nowrap;
+	gap: 0;
+	border: 0;
+	border-radius: 999px;
+	background: #1a3263;
+	box-shadow: 0 4px 16px rgba(20, 30, 60, 0.25);
 }
 
-.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart .mphb-reservation-details,
-.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart .lgf-cart-dates,
-.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart .lgf-cart-rooms,
-.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart .mphb-confirm-reservation {
+.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart
+	.lgf-cart-bar,
+.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart
+	.lgf-cart-dates,
+.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart
+	.lgf-cart-rooms,
+.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart
+	.mphb-confirm-reservation,
+.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart
+	.lgf-cart-hint {
 	display: none !important;
+}
+
+/* Pastille : masquée par défaut, visible uniquement quand le panier est réduit */
+.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-chip {
+	display: none;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0.45em 0.9em;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	color: #fff;
+	cursor: pointer;
+	border-radius: 999px;
+}
+
+.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart .lgf-cart-chip {
+	display: inline-flex;
+}
+
+.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-chip-icon {
+	display: inline-flex;
+	align-items: center;
+	color: #fff;
+}
+
+.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-chip-badge {
+	min-width: 1.5em;
+	height: 1.5em;
+	padding: 0 0.35em;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: #4361ee;
+	color: #fff;
+	border-radius: 999px;
+	font-size: 0.8rem;
+	font-weight: 700;
+}
+
+/* Panier réduit + étendu : la pastille devient un panneau détaillé */
+.mphb_sc_search_results-wrapper.lgf-cart-minimized.lgf-cart-expanded > .mphb-reservation-cart {
+	left: 12px;
+	width: min(360px, calc(100vw - 24px));
+	align-items: stretch;
+	flex-wrap: wrap;
+	gap: 0.7em;
+	border: 1px solid #4361ee;
+	border-radius: 14px;
+	padding: 0.9em 1.1em;
+	background: #fbfcff;
+	color: #1a3263;
+	box-shadow: 0 8px 24px rgba(20, 30, 60, 0.18);
+}
+
+.mphb_sc_search_results-wrapper.lgf-cart-minimized.lgf-cart-expanded > .mphb-reservation-cart .lgf-cart-chip {
+	display: none;
+}
+
+.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-close {
+	display: none;
+	width: 1.8em;
+	height: 1.8em;
+	margin-left: auto;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #d8dce6;
+	border-radius: 50%;
+	background: #fff;
+	color: #1a3263;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.mphb_sc_search_results-wrapper.lgf-cart-minimized.lgf-cart-expanded > .mphb-reservation-cart .lgf-cart-close {
+	display: inline-flex;
+}
+
+.mphb_sc_search_results-wrapper.lgf-cart-minimized.lgf-cart-expanded > .mphb-reservation-cart .mphb-reservation-details {
+	display: flex !important;
+}
+
+.mphb_sc_search_results-wrapper.lgf-cart-minimized.lgf-cart-expanded > .mphb-reservation-cart .lgf-cart-dates {
+	display: block !important;
+}
+
+.mphb_sc_search_results-wrapper.lgf-cart-minimized.lgf-cart-expanded > .mphb-reservation-cart .lgf-cart-rooms {
+	display: flex !important;
+}
+
+.mphb_sc_search_results-wrapper.lgf-cart-minimized.lgf-cart-expanded > .mphb-reservation-cart .mphb-confirm-reservation {
+	display: inline-block !important;
 }
 
 /* Retour d'ajout sur chaque carte : message au-dessus du bouton "Supprimer" */
