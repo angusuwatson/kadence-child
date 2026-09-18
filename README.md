@@ -14,7 +14,7 @@ direct-booking guard) + GitHub auto-updater.
 ## One-time GitHub setup
 
 1. Create a repo named `kadence-child` (public is simplest; no secrets live in this theme).
-2. Edit `functions-updater-top.php` → replace `USERNAME/kadence-child` with your repo path.
+2. (Already done — repo is `https://github.com/angusuwatson/kadence-child`.)
 3. Push the whole theme folder to branch `main`.
 4. On the live site: after this batch is deployed, go to **Appearance → Themes**. Dev pushes to `main` appear as an update — click **Update** instead of uploading files manually.
 
