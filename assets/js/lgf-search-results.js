@@ -441,7 +441,8 @@
 		// l'entete sticky du theme passe au-dessus du panier reduit : on garde
 		// la pastille sous l'entete (et sous son z-index) tant qu'elle est
 		// visible ; ensuite elle remonte en haut de l'ecran. On l'ancre aussi
-		// dans la colonne de la page pour rester a l'interieur du conteneur.
+		// dans la colonne de la page pour rester a l'interieur du conteneur,
+		// sans jamais sortir de l'ecran.
 		function applyHeaderMetrics() {
 			var hosts = wrapper.ownerDocument.querySelectorAll('#masthead, .site-mobile-header-wrap');
 			var bottom = 0;
@@ -452,21 +453,42 @@
 				if (rect.bottom > bottom) {
 					bottom = rect.bottom;
 				}
-				var z = parseInt(window.getComputedStyle(el).zIndex, 10);
-				if (!isNaN(z) && z > zIndex) {
-					zIndex = z;
+				if (rect.bottom > 0) {
+					var z = parseInt(window.getComputedStyle(el).zIndex, 10);
+					if (!isNaN(z) && z > zIndex) {
+						zIndex = z;
+					}
 				}
 			});
 
 			var top = bottom > 0 ? bottom + 4 : 8;
-			var left = Math.round(wrapper.getBoundingClientRect().left) + 12;
+			var wrapperLeft = Math.max(wrapper.getBoundingClientRect().left, 12);
+			var left = wrapperLeft + 12;
+			var maxLeft = Math.max(12, window.innerWidth - 150);
+			if (left > maxLeft) {
+				left = maxLeft;
+			}
+
 			var root = wrapper.ownerDocument.documentElement;
 			root.style.setProperty('--lgf-cart-top', top + 'px');
 			root.style.setProperty('--lgf-cart-z', String(zIndex - 6));
 			root.style.setProperty('--lgf-cart-left', left + 'px');
 		}
 
+		// L'entete "relative" du theme sort de l'ecran au defilement : on
+		// recalcule pour remonter la pastille en haut de l'ecran (debouche).
+		var lastMetricStamp = 0;
+
+		function scheduleMetrics() {
+			var now = Date.now();
+			if (now - lastMetricStamp > 80) {
+				lastMetricStamp = now;
+				applyHeaderMetrics();
+			}
+		}
+
 		applyHeaderMetrics();
 		window.addEventListener('resize', applyHeaderMetrics);
+		window.addEventListener('scroll', scheduleMetrics, { passive: true });
 	});
 })();

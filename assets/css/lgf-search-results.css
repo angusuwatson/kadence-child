@@ -633,3 +633,132 @@
 	padding: 0.55em 1.2em;
 	font-weight: 600;
 }
+
+/* =====================================================================
+   CHECKOUT (MotoPress premium, shortcode [mphb_checkout])
+   Two columns on desktop: stay details + guest form (left), price
+   summary + total + confirm button (right card). Single column below.
+   ================================================================== */
+
+.mphb_sc_checkout-form {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.5em 2.5em;
+}
+
+@media (min-width: 992px) {
+	.mphb_sc_checkout-form {
+		grid-template-columns: minmax(0, 1fr) 340px;
+		gap: 2.2em 2.75em;
+		align-items: start;
+	}
+
+	/* Left column : stay details then guest form */
+	.mphb_sc_checkout-form .mphb-booking-details {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.mphb_sc_checkout-form .mphb-customer-details {
+		grid-column: 1;
+		grid-row: 2;
+	}
+
+	/* Right column : price card, total, errors, confirm */
+	.mphb_sc_checkout-form .mphb-room-price-breakdown-wrapper {
+		grid-column: 2;
+		grid-row: 1;
+	}
+
+	.mphb_sc_checkout-form .mphb-total-price {
+		grid-column: 2;
+		grid-row: 2;
+	}
+
+	.mphb_sc_checkout-form .mphb-errors-wrapper {
+		grid-column: 2;
+		grid-row: 3;
+		margin: 0;
+	}
+
+	.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper {
+		grid-column: 2;
+		grid-row: 4;
+	}
+}
+
+/* Summary card */
+.mphb_sc_checkout-form .mphb-room-price-breakdown-wrapper {
+	background: #f6f7fb;
+	border: 1px solid #e4e7f0;
+	border-radius: 12px;
+	padding: 1.15em 1.3em;
+}
+
+.mphb_sc_checkout-form .mphb-room-price-breakdown-wrapper .mphb-price-breakdown-title {
+	margin-top: 0;
+	border-bottom: 1px solid #e4e7f0;
+	padding-bottom: 0.5em;
+}
+
+/* Total row */
+.mphb_sc_checkout-form .mphb-total-price {
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: #1a3263;
+	background: #fbfcff;
+	border: 1px solid #e4e7f0;
+	border-top: 3px solid #4361ee;
+	border-radius: 12px;
+	padding: 0.8em 1em;
+	margin-top: 0.6em;
+}
+
+/* Confirm button */
+.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper {
+	text-align: center;
+}
+
+.mphb_sc_checkout-form .mphb_sc_checkout-submit-wrapper input[type="submit"] {
+	width: 100%;
+}
+
+/* Section headings */
+.mphb_sc_checkout-form .mphb-booking-details-title,
+.mphb_sc_checkout-form .mphb-customer-details-title {
+	color: #1a3263;
+	border-left: 4px solid #4361ee;
+	padding-left: 0.6em;
+}
+
+/* Stay details : dates on one line pair on desktop */
+.mphb_sc_checkout-form .mphb-check-in-date, 
+.mphb_sc_checkout-form .mphb-check-out-date {
+	font-size: 0.95rem;
+	margin: 0.35em 0;
+}
+
+/* Room blocks */
+.mphb_sc_checkout-form .mphb-room-details {
+	border: 1px solid #e4e7f0;
+	border-radius: 12px;
+	padding: 0.9em 1.1em;
+	margin: 0.9em 0;
+	background: #fff;
+}
+
+.mphb_sc_checkout-form .mphb-room-details .mphb-room-number {
+	margin-top: 0;
+}
+
+/* Guest fields : inputs breathe */
+.mphb_sc_checkout-form .mphb-customer-details input[type="text"],
+.mphb_sc_checkout-form .mphb-customer-details input[type="email"],
+.mphb_sc_checkout-form .mphb-customer-details select,
+.mphb_sc_checkout-form .mphb-customer-details textarea {
+	width: 100%;
+	padding: 0.55em 0.7em;
+	border: 1px solid #cfd4e2;
+	border-radius: 8px;
+	font: inherit;
+}
