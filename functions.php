@@ -21,12 +21,12 @@ if ( file_exists( get_stylesheet_directory() . '/lib/plugin-update-checker/plugi
 		'kadence-child'
 	);
 	$lgfThemeUpdater->setBranch( 'main' );
-	$lgfThemeUpdater->setCheckPeriod( 1 ); // re-check at least hourly instead of the default 7 days
 
-	// Force a fresh check whenever Dashboard → Updates or Appearance → Themes loads,
-	// so a push shows up without waiting for the checked-transient to expire.
-	add_action( 'load-update-core', function () { global $lgfThemeUpdater; $lgfThemeUpdater->checkForUpdates(); } );
-	add_action( 'load-appearance_page_themes', function () { global $lgfThemeUpdater; $lgfThemeUpdater->checkForUpdates(); } );
+	// Force a fresh check whenever Dashboard → Updates (update-core.php) or
+	// Appearance → Themes (themes.php) loads, so a push shows up immediately
+	// instead of waiting for the default 12-hour / cached check to expire.
+	add_action( 'load-update-core.php', function () { global $lgfThemeUpdater; $lgfThemeUpdater->checkForUpdates(); } );
+	add_action( 'load-themes.php', function () { global $lgfThemeUpdater; $lgfThemeUpdater->checkForUpdates(); } );
 
 	// Diagnostic probe: log into wp-admin, then open /?lgf_probe=1
 	add_action( 'init', function () {
