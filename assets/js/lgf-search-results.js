@@ -438,17 +438,19 @@
 		render();
 		stripMessagePrefixes(wrapper);
 
-		// l'entete sticky du theme passe au-dessus du panier reduit : on
-		// positionne la pastille sous l'entete et sous son z-index.
+		// l'entete sticky du theme passe au-dessus du panier reduit : on garde
+		// la pastille sous l'entete (et sous son z-index) tant qu'elle est
+		// visible ; ensuite elle remonte en haut de l'ecran. On l'ancre aussi
+		// dans la colonne de la page pour rester a l'interieur du conteneur.
 		function applyHeaderMetrics() {
 			var hosts = wrapper.ownerDocument.querySelectorAll('#masthead, .site-mobile-header-wrap');
-			var height = 80;
+			var bottom = 0;
 			var zIndex = 11;
 
 			Array.prototype.forEach.call(hosts, function (el) {
 				var rect = el.getBoundingClientRect();
-				if (rect.height > height) {
-					height = rect.height;
+				if (rect.bottom > bottom) {
+					bottom = rect.bottom;
 				}
 				var z = parseInt(window.getComputedStyle(el).zIndex, 10);
 				if (!isNaN(z) && z > zIndex) {
@@ -456,9 +458,12 @@
 				}
 			});
 
+			var top = bottom > 0 ? bottom + 4 : 8;
+			var left = Math.round(wrapper.getBoundingClientRect().left) + 12;
 			var root = wrapper.ownerDocument.documentElement;
-			root.style.setProperty('--lgf-cart-top', (height + 8) + 'px');
+			root.style.setProperty('--lgf-cart-top', top + 'px');
 			root.style.setProperty('--lgf-cart-z', String(zIndex - 6));
+			root.style.setProperty('--lgf-cart-left', left + 'px');
 		}
 
 		applyHeaderMetrics();

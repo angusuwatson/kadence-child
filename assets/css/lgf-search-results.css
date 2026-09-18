@@ -281,7 +281,7 @@
 .mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart {
 	position: fixed;
 	top: var(--lgf-cart-top, 88px);
-	left: 12px;
+	left: var(--lgf-cart-left, 12px);
 	z-index: var(--lgf-cart-z, 30);
 	width: auto;
 	max-width: min(340px, calc(100vw - 24px));
@@ -305,7 +305,9 @@
 .mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart
 	.mphb-confirm-reservation,
 .mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart
-	.lgf-cart-hint {
+	.lgf-cart-hint,
+.mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart
+	.mphb-reservation-details {
 	display: none !important;
 }
 
@@ -349,7 +351,7 @@
 
 /* Panier réduit + étendu : la pastille devient un panneau détaillé */
 .mphb_sc_search_results-wrapper.lgf-cart-minimized.lgf-cart-expanded > .mphb-reservation-cart {
-	left: 12px;
+	left: var(--lgf-cart-left, 12px);
 	width: min(360px, calc(100vw - 24px));
 	align-items: stretch;
 	flex-wrap: wrap;
