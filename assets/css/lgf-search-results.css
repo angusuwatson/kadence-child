@@ -762,3 +762,39 @@
 	border-radius: 8px;
 	font: inherit;
 }
+
+/* Inner two-column sections (check-in/check-out, guest fields) */
+@media (min-width: 600px) {
+	.mphb_sc_checkout-form .mphb-booking-details {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.15em 1.5em;
+	}
+
+	.mphb_sc_checkout-form .mphb-booking-details .mphb-booking-details-title,
+	.mphb_sc_checkout-form .mphb-booking-details .mphb-reserve-rooms-details {
+		grid-column: 1 / -1;
+	}
+
+	.mphb_sc_checkout-form .mphb-room-details {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.25em 1.5em;
+	}
+
+	.mphb_sc_checkout-form .mphb-room-details .mphb-room-number,
+	.mphb_sc_checkout-form .mphb-room-details .mphb-guest-name-wrapper {
+		grid-column: 1 / -1;
+	}
+
+	.mphb_sc_checkout-form .mphb-customer-details {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.15em 1.5em;
+	}
+
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-customer-details-title,
+	.mphb_sc_checkout-form .mphb-customer-details .mphb-required-fields-tip {
+		grid-column: 1 / -1;
+	}
+}

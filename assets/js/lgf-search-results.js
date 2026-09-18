@@ -438,33 +438,51 @@
 		render();
 		stripMessagePrefixes(wrapper);
 
-		// l'entete sticky du theme passe au-dessus du panier reduit : on garde
-		// la pastille sous l'entete (et sous son z-index) tant qu'elle est
-		// visible ; ensuite elle remonte en haut de l'ecran. On l'ancre aussi
-		// dans la colonne de la page pour rester a l'interieur du conteneur,
-		// sans jamais sortir de l'ecran.
+		// Barres en haut de l'ecran (entete sticky, barre admin, menu pin...).
+		// La pastille doit rester visible : on la cale sous la barre la plus
+		// basse qui occupe le haut de l'ecran, et sous son z-index.
 		function applyHeaderMetrics() {
-			var hosts = wrapper.ownerDocument.querySelectorAll('#masthead, .site-mobile-header-wrap');
-			var bottom = 0;
-			var zIndex = 11;
+			var wrapperRect = wrapper.getBoundingClientRect();
+			var viewportW = window.innerWidth;
+			var top = 8;
+			var zIndex = 5;
+			var candidates = wrapper.ownerDocument.querySelectorAll(
+				'#wpadminbar, header, nav, [class*="header"], [class*="site-header"], ' +
+				'[class*="bar"], [class*="top-bar"], [class*="topbar"], [class*="sticky"]'
+			);
 
-			Array.prototype.forEach.call(hosts, function (el) {
-				var rect = el.getBoundingClientRect();
-				if (rect.bottom > bottom) {
-					bottom = rect.bottom;
+			Array.prototype.forEach.call(candidates, function (el) {
+				if (wrapper.contains(el) || el.contains(wrapper)) {
+					return;
 				}
-				if (rect.bottom > 0) {
-					var z = parseInt(window.getComputedStyle(el).zIndex, 10);
-					if (!isNaN(z) && z > zIndex) {
-						zIndex = z;
-					}
+
+				var style = window.getComputedStyle(el);
+				if (style.position !== 'fixed' && style.position !== 'sticky') {
+					return;
+				}
+
+				var rect = el.getBoundingClientRect();
+				if (rect.top > 6 || rect.bottom <= 0) {
+					return;
+				}
+
+				// Ignorer les petites bulles (pastille du panier...)
+				if (rect.width < viewportW * 0.5) {
+					return;
+				}
+
+				if (rect.bottom + 4 > top) {
+					top = rect.bottom + 4;
+				}
+
+				var z = parseInt(style.zIndex, 10);
+				if (!isNaN(z) && z > zIndex) {
+					zIndex = z;
 				}
 			});
 
-			var top = bottom > 0 ? bottom + 4 : 8;
-			var wrapperLeft = Math.max(wrapper.getBoundingClientRect().left, 12);
-			var left = wrapperLeft + 12;
-			var maxLeft = Math.max(12, window.innerWidth - 150);
+			var left = Math.max(wrapperRect.left + 12, 12);
+			var maxLeft = Math.max(12, viewportW - 150);
 			if (left > maxLeft) {
 				left = maxLeft;
 			}
