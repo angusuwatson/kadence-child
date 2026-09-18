@@ -146,13 +146,13 @@ function lgf_enqueue_search_results_script() {
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/css/lgf-search-results.css',
 			array(),
-			'1.0.16'
+			'1.0.17'
 		);
 		wp_enqueue_script(
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/js/lgf-search-results.js',
 			array( 'jquery', 'mphb' ),
-			'1.0.16',
+			'1.0.17',
 			true
 		);
 	}
@@ -167,13 +167,13 @@ function lgf_enqueue_checkout_css() {
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/css/lgf-search-results.css',
 			array(),
-			'1.0.16'
+			'1.0.17'
 		);
 		wp_enqueue_script(
 			'lgf-checkout',
 			get_stylesheet_directory_uri() . '/assets/js/lgf-checkout.js',
 			array( 'jquery', 'mphb' ),
-			'1.0.16',
+			'1.0.17',
 			true
 		);
 	}

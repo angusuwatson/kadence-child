@@ -827,17 +827,17 @@
 	}
 
 	.mphb_sc_checkout-form .mphb-customer-details {
-		grid-row: 2;
+		grid-row: 3;
 	}
 
 	.mphb_sc_checkout-form .mphb-coupon-code-wrapper {
 		grid-column: 1;
-		grid-row: 3;
+		grid-row: 2;
 	}
 
 	.mphb_sc_checkout-form .mphb-room-price-breakdown-wrapper {
 		grid-column: 2 / -1;
-		grid-row: 3;
+		grid-row: 2;
 	}
 
 	.mphb_sc_checkout-form .mphb-total-price,
