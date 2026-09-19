@@ -61,7 +61,7 @@ function lgf_enqueue_cycling_itineraries_assets() {
 			'lgf-cycling-itineraries',
 			get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
 			array( 'kadence-child-style' ),
-			'1.0.0'
+			'1.0.20'
 		);
 	}
 }
