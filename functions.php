@@ -55,6 +55,18 @@ function kadence_child_enqueue_styles() {
 }
 add_action('wp_enqueue_scripts', 'kadence_child_enqueue_styles');
 
+function lgf_enqueue_cycling_itineraries_assets() {
+	if ( is_page_template( 'page-cycling-itineraries.php' ) ) {
+		wp_enqueue_style(
+			'lgf-cycling-itineraries',
+			get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
+			array( 'kadence-child-style' ),
+			'1.0.0'
+		);
+	}
+}
+add_action( 'wp_enqueue_scripts', 'lgf_enqueue_cycling_itineraries_assets' );
+
 
 // Language Detection - Simple, but can be improved with more sophisticated methods
 function get_user_language() {
