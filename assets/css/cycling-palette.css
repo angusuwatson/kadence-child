@@ -1,0 +1,17 @@
+/* Keep cycling page inside La Grange Fleurie's warm wood and turquoise palette. */
+.lgf-cycling-page{--blue:#3375b8;--blue-dark:#245b92;--brown:#624438;--brown-dark:#4a3128;--aqua:#dff5f3;background:#fff}
+.lgf-cycling-kicker{color:var(--brown)}
+.lgf-cycling-hero{background:linear-gradient(90deg,rgba(74,49,40,.86),rgba(74,49,40,.2)),url('/wp-content/uploads/2019/06/la-grange-fleurie-cluny07-scaled-2.jpg') center/cover}
+.lgf-cycling-hero .lgf-cycling-kicker{color:#e8ffff}
+.lgf-cycling-hero h1 em{color:#c9f1ed}
+.lgf-cycling-button--light,.lgf-cycling-button--dark{background:var(--brown)}
+.lgf-cycling-button--light:hover,.lgf-cycling-button--dark:hover{background:var(--brown-dark)}
+.lgf-cycling-intro h2,.lgf-cycling-section-heading h2,.lgf-cycling-why h2,.lgf-cycling-booking h2{color:var(--brown)}
+.lgf-cycling-note{border-left-color:var(--brown);background:#faf5f1}
+.lgf-cycling-note span,.lgf-cycling-route-card__number,.lgf-cycling-route-card__stats strong,.lgf-cycling-plan__label,.lgf-cycling-plan li>span,.lgf-cycling-perks span{color:var(--brown)}
+.lgf-cycling-itineraries{background:var(--aqua)}
+.lgf-cycling-route-card{border-top-color:var(--brown)}
+.lgf-cycling-route-card__tag{color:var(--brown);background:#f7eee9}
+.lgf-cycling-route-card h3,.lgf-cycling-plan h3,.lgf-cycling-perks h3{color:var(--brown)}
+.lgf-cycling-route-card__footer a,.lgf-cycling-download{color:var(--brown);border-color:var(--brown)}
+.lgf-cycling-booking__inner{background:#e5f5f3;border-color:#b9dfdc;border-top-color:var(--brown)}
