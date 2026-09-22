@@ -61,13 +61,13 @@ function lgf_enqueue_cycling_itineraries_assets() {
 			'lgf-cycling-itineraries',
 			get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
 			array( 'kadence-child-style' ),
-			'1.0.21'
+			'1.0.22'
 		);
 		wp_enqueue_style(
 			'lgf-cycling-palette',
 			get_stylesheet_directory_uri() . '/assets/css/cycling-palette.css',
 			array( 'lgf-cycling-itineraries' ),
-			'1.0.21'
+			'1.0.22'
 		);
 	}
 }
