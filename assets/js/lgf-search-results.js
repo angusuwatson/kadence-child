@@ -155,43 +155,13 @@
 			cart.insertBefore(list, cart.firstChild);
 		}
 
-		// ---- Barre compacte (mobile) -----------------------------------------
-		//
-		// Sur mobile, au défilement, le panier se réduit à une fine barre
-		// fixée en haut de l'écran. Un appui sur la barre déploie le détail.
-
-		var bar = document.createElement('button');
-		bar.type = 'button';
-		bar.className = 'lgf-cart-bar';
-		bar.setAttribute('aria-expanded', 'false');
-		bar.setAttribute('aria-label', labels.showSelection);
-		bar.innerHTML = '<span class="lgf-cart-bar-left"></span>' +
-			'<span class="lgf-cart-bar-summary"></span>' +
-			'<span class="lgf-cart-bar-chevron" aria-hidden="true">&#9662;</span>';
-		cart.insertBefore(bar, cart.firstChild);
-
-		// ---- Pastille de panier réduit (chip) et bouton de fermeture -------
-
 		var chip = document.createElement('button');
 		chip.type = 'button';
 		chip.className = 'lgf-cart-chip';
-		chip.setAttribute('aria-expanded', 'false');
 		chip.setAttribute('aria-label', labels.viewSelection);
 		chip.innerHTML = '<svg class="lgf-cart-chip-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 12h-13z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>' +
 			'<span class="lgf-cart-chip-badge">0</span>';
-		cart.insertBefore(chip, bar.nextSibling);
-
-		var closeBtn = document.createElement('button');
-		closeBtn.type = 'button';
-		closeBtn.className = 'lgf-cart-close';
-		closeBtn.setAttribute('aria-label', labels.closeSelection);
-		closeBtn.innerHTML = '&#10005;';
-		cart.appendChild(closeBtn);
-
-		var sentinel = document.createElement('div');
-		sentinel.className = 'lgf-cart-sentinel';
-		sentinel.setAttribute('aria-hidden', 'true');
-		wrapper.insertBefore(sentinel, cart);
+		cart.insertBefore(chip, cart.firstChild);
 
 		// ---- Dates du séjour --------------------------------------------------
 
@@ -239,7 +209,7 @@
 		var datesEl = document.createElement('p');
 		datesEl.className = 'lgf-cart-dates';
 		datesEl.textContent = datesText;
-		cart.insertBefore(datesEl, bar.nextSibling);
+		cart.insertBefore(datesEl, chip.nextSibling);
 
 		// ---- Aide quand aucune chambre n'est sélectionnée --------------------
 
@@ -248,7 +218,14 @@
 		hintEl.textContent = labels.addHint;
 		cart.insertBefore(hintEl, datesEl.nextSibling);
 
-		function renderBar() {
+		function updateCartIconVisibility() {
+			var hasSelection = cart.querySelectorAll('[name^="mphb_rooms_details"]').length > 0;
+			var cartBounds = cart.getBoundingClientRect();
+			var cartHasLeftViewport = cartBounds.bottom < 0;
+			wrapper.classList.toggle('lgf-cart-icon-visible', hasSelection && cartHasLeftViewport);
+		}
+
+		function renderChip() {
 			var inputs = cart.querySelectorAll('[name^="mphb_rooms_details"]');
 			var count = 0;
 
@@ -256,19 +233,11 @@
 				count += parseInt(input.value, 10) || 1;
 			});
 
-			var totalEl = cart.querySelector('.mphb-cart-total-price-value');
-			var total = totalEl ? totalEl.textContent.replace(/\s+/g, ' ').trim() : '';
-			var left = count === 0
-				? labels.noRooms
-				: count + (count > 1 ? ' ' + labels.rooms : ' ' + labels.room);
-
-			bar.querySelector('.lgf-cart-bar-left').textContent = left;
-			bar.querySelector('.lgf-cart-bar-summary').textContent = count === 0 ? '' : total;
-
 			var badge = cart.querySelector('.lgf-cart-chip-badge');
 			if (badge) {
 				badge.textContent = String(count);
 			}
+			updateCartIconVisibility();
 		}
 
 		function render() {
@@ -314,7 +283,7 @@
 			list.innerHTML = html;
 			list.classList.toggle('lgf-cart-rooms-empty', inputs.length === 0);
 			hintEl.style.display = inputs.length ? 'none' : '';
-			renderBar();
+			renderChip();
 
 			// Le bouton de la carte devient "Supprimer" (lien natif de MotoPress
 			// stylé en bouton) dès que la chambre est dans la sélection.
@@ -332,11 +301,9 @@
 				}
 			});
 
-			// Panier vide : on annule la réduction pour laisser apparaître
-			// le message "aucun logement".
+			// Panier vide : le raccourci flottant disparaît.
 			if (inputs.length === 0) {
-				expanded = false;
-				wrapper.classList.remove('lgf-cart-minimized', 'lgf-cart-expanded');
+				wrapper.classList.remove('lgf-cart-icon-visible');
 			}
 		}
 
@@ -347,12 +314,6 @@
 			if (removeLink) {
 				removeLink.click();
 			}
-		}
-
-		function syncBarAttrs() {
-			var isExpanded = wrapper.classList.contains('lgf-cart-expanded');
-			bar.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
-			chip.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
 		}
 
 		// Retrait d'un logement : on déclenche le lien "Retirer" de la carte
@@ -404,47 +365,17 @@
 			});
 		}
 
-		// ---- Réduction du panier au défilement ------------------------------
-
-		var expanded = false;
-
-		function setMinimized(minimized) {
-			wrapper.classList.toggle('lgf-cart-minimized', !!minimized);
-			wrapper.classList.toggle('lgf-cart-expanded', !!(minimized && expanded));
-			syncBarAttrs();
-		}
-
 		if (window.IntersectionObserver) {
-			var stickyObserver = new IntersectionObserver(function (entries) {
-				var entry = entries[0];
-				var stuck = !entry.isIntersecting && entry.boundingClientRect.top < 0;
-
-				if (!stuck) {
-					expanded = false;
-					wrapper.classList.remove('lgf-cart-minimized', 'lgf-cart-expanded');
-					syncBarAttrs();
-					return;
-				}
-
-				setMinimized(true);
+			var cartObserver = new IntersectionObserver(function () {
+				updateCartIconVisibility();
 			}, { threshold: 0 });
-
-			stickyObserver.observe(sentinel);
+			cartObserver.observe(cart);
 		}
+		window.addEventListener('scroll', updateCartIconVisibility, { passive: true });
+		window.addEventListener('resize', updateCartIconVisibility);
 
-		bar.addEventListener('click', function () {
-			expanded = !expanded;
-			setMinimized(sentinel.getBoundingClientRect().top < 0);
-		});
-
-		// La pastille (vue reduite) bascule le detail, comme la barre.
 		chip.addEventListener('click', function () {
-			bar.click();
-		});
-
-		closeBtn.addEventListener('click', function () {
-			expanded = false;
-			setMinimized(true);
+			cart.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		});
 
 		// ---- Pré-remplissage avec la recommandation --------------------------
@@ -526,75 +457,6 @@
 		updateMaxCapacityPrices();
 		stripMessagePrefixes(wrapper);
 
-		// Barres en haut de l'ecran (entete sticky, barre admin, menu pin...).
-		// La pastille doit rester visible : on la cale sous la barre la plus
-		// basse qui occupe le haut de l'ecran, et sous son z-index.
-		function applyHeaderMetrics() {
-			var wrapperRect = wrapper.getBoundingClientRect();
-			var viewportW = window.innerWidth;
-			var top = 8;
-			var zIndex = 5;
-			var candidates = wrapper.ownerDocument.querySelectorAll(
-				'#wpadminbar, header, nav, [class*="header"], [class*="site-header"], ' +
-				'[class*="bar"], [class*="top-bar"], [class*="topbar"], [class*="sticky"]'
-			);
-
-			Array.prototype.forEach.call(candidates, function (el) {
-				if (wrapper.contains(el) || el.contains(wrapper)) {
-					return;
-				}
-
-				var style = window.getComputedStyle(el);
-				if (style.position !== 'fixed' && style.position !== 'sticky') {
-					return;
-				}
-
-				var rect = el.getBoundingClientRect();
-				if (rect.top > 6 || rect.bottom <= 0) {
-					return;
-				}
-
-				// Ignorer les petites bulles (pastille du panier...)
-				if (rect.width < viewportW * 0.5) {
-					return;
-				}
-
-				if (rect.bottom + 4 > top) {
-					top = rect.bottom + 4;
-				}
-
-				var z = parseInt(style.zIndex, 10);
-				if (!isNaN(z) && z > zIndex) {
-					zIndex = z;
-				}
-			});
-
-			var left = Math.max(wrapperRect.left + 12, 12);
-			var maxLeft = Math.max(12, viewportW - 150);
-			if (left > maxLeft) {
-				left = maxLeft;
-			}
-
-			var root = wrapper.ownerDocument.documentElement;
-			root.style.setProperty('--lgf-cart-top', top + 'px');
-			root.style.setProperty('--lgf-cart-z', String(zIndex - 6));
-			root.style.setProperty('--lgf-cart-left', left + 'px');
-		}
-
-		// L'entete "relative" du theme sort de l'ecran au defilement : on
-		// recalcule pour remonter la pastille en haut de l'ecran (debouche).
-		var lastMetricStamp = 0;
-
-		function scheduleMetrics() {
-			var now = Date.now();
-			if (now - lastMetricStamp > 80) {
-				lastMetricStamp = now;
-				applyHeaderMetrics();
-			}
-		}
-
-		applyHeaderMetrics();
-		window.addEventListener('resize', applyHeaderMetrics);
-		window.addEventListener('scroll', scheduleMetrics, { passive: true });
+		updateCartIconVisibility();
 	});
 })();

@@ -42,16 +42,14 @@
 	display: none !important;
 }
 
-/* Résumé collant : reste visible pendant le défilement des chambres */
+/* Le panier reste dans le flux de la page. */
 .mphb_sc_search_results-wrapper > .mphb-reservation-cart {
 	margin: 0;
 	padding: 0.9em 1.4em;
 	border: 1px solid #e2e6ee;
 	border-radius: 12px;
 	background: #fbfcff;
-	position: sticky;
-	top: var(--lgf-cart-top, 12px);
-	z-index: var(--lgf-cart-z, 30);
+	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -263,19 +261,6 @@
 	transform: rotate(180deg);
 }
 
-@media (max-width: 720px) {
-		/* Sur mobile, dates et nuits prennent trop de place : on les masque */
-	.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-dates {
-		display: none !important;
-	}
-
-	/* Barre sur une seule ligne : séjour à gauche, total + chevron à droite */
-	.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-bar-summary {
-		margin-left: 0;
-		white-space: nowrap;
-	}
-}
-
 /* Réduit : pastille fixe en haut à gauche, avec compteur de logements.
    Elle remplace la large barre qui masquait trop l'écran. */
 .mphb_sc_search_results-wrapper.lgf-cart-minimized > .mphb-reservation-cart {
@@ -347,6 +332,35 @@
 	border-radius: 999px;
 	font-size: 0.8rem;
 	font-weight: 700;
+}
+
+.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-chip {
+	position: fixed;
+	right: 20px;
+	bottom: 20px;
+	z-index: 10000;
+	width: 58px;
+	height: 58px;
+	padding: 0;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: #1a3263;
+	box-shadow: 0 4px 16px rgba(20, 30, 60, 0.28);
+}
+
+.mphb_sc_search_results-wrapper.lgf-cart-icon-visible > .mphb-reservation-cart .lgf-cart-chip {
+	display: inline-flex;
+}
+
+.mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-chip-badge {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+}
+
+.mphb_sc_search_results-wrapper > .mphb-reservation-cart {
+	scroll-margin-top: 110px;
 }
 
 /* Panier réduit + étendu : la pastille devient un panneau détaillé */
