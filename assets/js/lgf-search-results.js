@@ -23,6 +23,32 @@
 		if (!wrapper) {
 			return;
 		}
+		var isEnglish = /^en(?:-|$)/i.test(document.documentElement.lang || '');
+		var labels = isEnglish ? {
+			selectedRooms: 'Selected rooms',
+			showSelection: 'Show selection details',
+			viewSelection: 'View selection details',
+			closeSelection: 'Close selection details',
+			addHint: 'Click “Add to selection” to choose a room.',
+			noRooms: 'No rooms',
+			room: 'room',
+			rooms: 'rooms',
+			guests: 'guests',
+			removeRoom: 'Remove this room',
+			dateLocale: 'en-GB'
+		} : {
+			selectedRooms: 'Logements sélectionnés',
+			showSelection: 'Afficher le détail de la sélection',
+			viewSelection: 'Voir le détail de la sélection',
+			closeSelection: 'Refermer le détail de la sélection',
+			addHint: 'Cliquez sur « Ajouter à ma sélection » pour choisir un logement.',
+			noRooms: 'Aucun logement',
+			room: 'logement',
+			rooms: 'logements',
+			guests: 'pers.',
+			removeRoom: 'Retirer ce logement',
+			dateLocale: 'fr-FR'
+		};
 
 		// Mode "réservation directe" (option mphb_direct_search_results) :
 		// cliquer sur le bouton d'une chambre redirige immédiatement vers le
@@ -120,7 +146,7 @@
 
 		var list = document.createElement('ul');
 		list.className = 'lgf-cart-rooms';
-		list.setAttribute('aria-label', 'Logements sélectionnés');
+		list.setAttribute('aria-label', labels.selectedRooms);
 
 		var details = cart.querySelector('.mphb-reservation-details');
 		if (details && details.parentNode) {
@@ -138,7 +164,7 @@
 		bar.type = 'button';
 		bar.className = 'lgf-cart-bar';
 		bar.setAttribute('aria-expanded', 'false');
-		bar.setAttribute('aria-label', 'Afficher le détail de la sélection');
+		bar.setAttribute('aria-label', labels.showSelection);
 		bar.innerHTML = '<span class="lgf-cart-bar-left"></span>' +
 			'<span class="lgf-cart-bar-summary"></span>' +
 			'<span class="lgf-cart-bar-chevron" aria-hidden="true">&#9662;</span>';
@@ -150,7 +176,7 @@
 		chip.type = 'button';
 		chip.className = 'lgf-cart-chip';
 		chip.setAttribute('aria-expanded', 'false');
-		chip.setAttribute('aria-label', 'Voir le detail de la selection');
+		chip.setAttribute('aria-label', labels.viewSelection);
 		chip.innerHTML = '<svg class="lgf-cart-chip-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 12h-13z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>' +
 			'<span class="lgf-cart-chip-badge">0</span>';
 		cart.insertBefore(chip, bar.nextSibling);
@@ -158,7 +184,7 @@
 		var closeBtn = document.createElement('button');
 		closeBtn.type = 'button';
 		closeBtn.className = 'lgf-cart-close';
-		closeBtn.setAttribute('aria-label', 'Refermer le detail de la selection');
+		closeBtn.setAttribute('aria-label', labels.closeSelection);
 		closeBtn.innerHTML = '&#10005;';
 		cart.appendChild(closeBtn);
 
@@ -190,7 +216,7 @@
 				return '';
 			}
 
-			var month = new Intl.DateTimeFormat('fr-FR', { month: 'short' });
+			var month = new Intl.DateTimeFormat(labels.dateLocale, { month: 'short' });
 
 			if (start.getTime() === end.getTime()) {
 				return start.getDate() + ' ' + month.format(start) + ' ' + start.getFullYear();
@@ -206,7 +232,7 @@
 				end.getDate() + ' ' + month.format(end) + ' ' + end.getFullYear();
 		}
 
-		var nightsText = nights ? nights + (nights > 1 ? ' nuits' : ' nuit') : '';
+		var nightsText = nights ? nights + (nights > 1 ? (isEnglish ? ' nights' : ' nuits') : (isEnglish ? ' night' : ' nuit')) : '';
 		var rangeText = formatRange(checkIn, checkOut);
 		var datesText = [nightsText, rangeText].filter(Boolean).join(' · ');
 
@@ -219,7 +245,7 @@
 
 		var hintEl = document.createElement('p');
 		hintEl.className = 'lgf-cart-hint';
-		hintEl.textContent = 'Cliquez sur \u00ab Ajouter \u00e0 ma s\u00e9lection \u00bb pour choisir une chambre.';
+		hintEl.textContent = labels.addHint;
 		cart.insertBefore(hintEl, datesEl.nextSibling);
 
 		function renderBar() {
@@ -233,8 +259,8 @@
 			var totalEl = cart.querySelector('.mphb-cart-total-price-value');
 			var total = totalEl ? totalEl.textContent.replace(/\s+/g, ' ').trim() : '';
 			var left = count === 0
-				? 'Aucun logement'
-				: count + (count > 1 ? ' logements' : ' logement');
+				? labels.noRooms
+				: count + (count > 1 ? ' ' + labels.rooms : ' ' + labels.room);
 
 			bar.querySelector('.lgf-cart-bar-left').textContent = left;
 			bar.querySelector('.lgf-cart-bar-summary').textContent = count === 0 ? '' : total;
@@ -267,13 +293,13 @@
 				var id = match[1];
 				var quantity = parseInt(input.value, 10) || 1;
 				var section = sections[id];
-				var title = section ? section.getAttribute('data-room-type-title') : 'Logement ' + id;
+				var title = section ? section.getAttribute('data-room-type-title') : (isEnglish ? 'Room ' : 'Logement ') + id;
 				var price = section ? parseFloat(section.getAttribute('data-room-price')) || 0 : 0;
 				var card = section ? section.closest('.mphb-room-type') : null;
 				var capacityEl = card ? card.querySelector('.mphb-room-type-total-capacity .mphb-attribute-value') : null;
 				var capacity = capacityEl ? capacityEl.textContent.replace(/\s+/g, ' ').trim() : '';
 				var capacityHtml = capacity
-					? '<span class="lgf-cart-room-capacity">' + capacity + ' pers.</span>'
+					? '<span class="lgf-cart-room-capacity">' + capacity + ' ' + labels.guests + '</span>'
 					: '';
 
 				html += '<li class="lgf-cart-room" data-room-type-id="' + id + '">' +
@@ -281,7 +307,7 @@
 					'<span class="lgf-cart-room-title">' + title + '</span>' +
 					capacityHtml +
 					'<span class="lgf-cart-room-price">' + formatMoney(price * quantity) + '</span>' +
-					'<button type="button" class="lgf-cart-room-remove" data-room-type-id="' + id + '" aria-label="Retirer ce logement">&times;</button>' +
+					'<button type="button" class="lgf-cart-room-remove" data-room-type-id="' + id + '" aria-label="' + labels.removeRoom + '">&times;</button>' +
 					'</li>';
 			});
 

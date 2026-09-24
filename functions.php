@@ -62,13 +62,13 @@ function lgf_enqueue_cycling_assets() {
 		'lgf-cycling-itineraries',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
 		array( 'kadence-child-style' ),
-		'1.0.26'
+		'1.0.27'
 	);
 	wp_register_style(
 		'lgf-cycling-palette',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-palette.css',
 		array( 'lgf-cycling-itineraries' ),
-		'1.0.26'
+		'1.0.27'
 	);
 
 	wp_enqueue_style( 'lgf-cycling-itineraries' );
@@ -82,13 +82,13 @@ function lgf_enqueue_cycling_editor_assets() {
 		'lgf-cycling-itineraries',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
 		array(),
-		'1.0.26'
+		'1.0.27'
 	);
 	wp_enqueue_style(
 		'lgf-cycling-palette',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-palette.css',
 		array( 'lgf-cycling-itineraries' ),
-		'1.0.26'
+		'1.0.27'
 	);
 }
 add_action( 'enqueue_block_editor_assets', 'lgf_enqueue_cycling_editor_assets' );
@@ -147,7 +147,9 @@ function lgf_search_results_book_button_label( $translation, $text, $domain ) {
 	if ( 'motopress-hotel-booking' === $domain && 'Book' === $text
 		&& function_exists( 'mphb_is_search_results_page' ) && mphb_is_search_results_page()
 		&& function_exists( 'MPHB' ) && ! MPHB()->settings()->main()->isDirectSearchResultsBooking() ) {
-		return 'Ajouter à ma sélection';
+		return function_exists( 'pll_current_language' ) && 'en' === pll_current_language( 'slug' )
+			? 'Add to selection'
+			: 'Ajouter à ma sélection';
 	}
 	return $translation;
 }
@@ -168,7 +170,9 @@ add_filter( 'gettext', 'lgf_search_results_hide_price_label', 10, 3 );
 function lgf_checkout_booking_details_title( $translation, $text, $domain ) {
 	if ( 'motopress-hotel-booking' === $domain && 'Booking Details' === $text
 		&& function_exists( 'mphb_is_checkout_page' ) && mphb_is_checkout_page() ) {
-		return 'Réservation';
+		return function_exists( 'pll_current_language' ) && 'en' === pll_current_language( 'slug' )
+			? 'Your stay'
+			: 'Réservation';
 	}
 	return $translation;
 }
@@ -178,7 +182,9 @@ add_filter( 'gettext', 'lgf_checkout_booking_details_title', 10, 3 );
 // Search results: the reservation cart replaces the recommendation block and is
 // pre-filled with the recommended combination (see assets/js/lgf-search-results.js).
 function lgf_search_results_cart_title() {
-	return 'Votre sélection';
+	return function_exists( 'pll_current_language' ) && 'en' === pll_current_language( 'slug' )
+		? 'Your selection'
+		: 'Votre sélection';
 }
 add_filter( 'mphb_sc_search_results_reservation_cart_title', 'lgf_search_results_cart_title' );
 
@@ -188,13 +194,13 @@ function lgf_enqueue_search_results_script() {
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/css/lgf-search-results.css',
 			array(),
-			'1.0.17'
+			'1.0.27'
 		);
 		wp_enqueue_script(
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/js/lgf-search-results.js',
 			array( 'jquery', 'mphb' ),
-			'1.0.17',
+			'1.0.27',
 			true
 		);
 	}
@@ -209,13 +215,13 @@ function lgf_enqueue_checkout_css() {
 			'lgf-search-results',
 			get_stylesheet_directory_uri() . '/assets/css/lgf-search-results.css',
 			array(),
-			'1.0.17'
+			'1.0.27'
 		);
 		wp_enqueue_script(
 			'lgf-checkout',
 			get_stylesheet_directory_uri() . '/assets/js/lgf-checkout.js',
 			array( 'jquery', 'mphb' ),
-			'1.0.17',
+			'1.0.27',
 			true
 		);
 	}
