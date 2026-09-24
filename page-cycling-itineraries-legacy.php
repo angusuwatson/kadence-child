@@ -326,6 +326,11 @@ $routes = [
 		],
 	],
 ];
+if ( function_exists( 'lgf_cycling_data' ) ) {
+	$lgf_data = lgf_cycling_data( $lang );
+	$i18n     = $lgf_data['i18n'];
+	$routes   = array( $lang => $lgf_data['routes'] );
+}
 ?>
 <main class="lgf-cycling-page">
 	<section class="lgf-cycling-hero">
@@ -380,7 +385,7 @@ $routes = [
 			<div class="lgf-cycling-plan" id="details-<?php echo esc_attr( $route['number'] ); ?>">
 				<div class="lgf-cycling-plan__label"><span><?php echo esc_html( $route['nights'] ); ?></span><strong><?php echo esc_html( $i18n['nights'] ); ?></strong></div>
 				<div class="lgf-cycling-plan__body"><h3><?php echo esc_html( $route['title'] ); ?></h3><ol>
-					<?php $day = 0; foreach ( $route['details'] as $detail ) : $day++; ?>
+					<?php $day = 0; foreach ( $route['details'] as $detail ) : if ( '' === trim( (string) $detail[0] ) && '' === trim( (string) $detail[1] ) ) { continue; } $day++; ?>
 						<li><span><?php echo esc_html( sprintf( '%02d', $day ) ); ?></span><div><strong><?php echo esc_html( $detail[0] ); ?></strong><small><?php echo esc_html( $detail[1] ); ?></small></div></li>
 					<?php endforeach; ?>
 				</ol><a class="lgf-cycling-download" href="<?php echo esc_url( $theme_uri . '/assets/routes/' . $route['file'] ); ?>" download><?php echo esc_html( $i18n['download'] ); ?> <span aria-hidden="true">↓</span></a></div>
