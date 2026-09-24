@@ -62,13 +62,13 @@ function lgf_enqueue_cycling_assets() {
 		'lgf-cycling-itineraries',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
 		array( 'kadence-child-style' ),
-		'1.0.24'
+		'1.0.25'
 	);
 	wp_register_style(
 		'lgf-cycling-palette',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-palette.css',
 		array( 'lgf-cycling-itineraries' ),
-		'1.0.24'
+		'1.0.25'
 	);
 
 	wp_enqueue_style( 'lgf-cycling-itineraries' );
@@ -82,13 +82,13 @@ function lgf_enqueue_cycling_editor_assets() {
 		'lgf-cycling-itineraries',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
 		array(),
-		'1.0.24'
+		'1.0.25'
 	);
 	wp_enqueue_style(
 		'lgf-cycling-palette',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-palette.css',
 		array( 'lgf-cycling-itineraries' ),
-		'1.0.24'
+		'1.0.25'
 	);
 }
 add_action( 'enqueue_block_editor_assets', 'lgf_enqueue_cycling_editor_assets' );

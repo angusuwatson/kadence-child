@@ -245,6 +245,17 @@ function lgf_cycling_field_row( $label, $name, $value, $type = 'text', $hint = '
 	echo '</td></tr>';
 }
 
+function lgf_cycling_purge_page_cache( $lang ) {
+	$slugs = array(
+		'en' => 'cycling-itineraries',
+		'fr' => 'sejours-cyclistes',
+		'nl' => 'fietsvakanties',
+	);
+	if ( isset( $slugs[ $lang ] ) ) {
+		do_action( 'litespeed_purge_url', home_url( '/' . $slugs[ $lang ] . '/' ) );
+	}
+}
+
 function lgf_cycling_render_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( 'Unauthorized' );
@@ -255,6 +266,7 @@ function lgf_cycling_render_page() {
 		check_admin_referer( 'lgf_cycling_save_' . $lang, 'lgf_cycling_nonce' );
 		$in = isset( $_POST['cycling'] ) ? wp_unslash( $_POST['cycling'] ) : array();
 		update_option( 'lgf_cycling_' . $lang, lgf_cycling_sanitize( $in ) );
+		lgf_cycling_purge_page_cache( $lang );
 		echo '<div class="notice notice-success is-dismissible"><p>Saved ' . esc_html( lgf_cycling_lang_label( $lang ) ) . ' copy.</p></div>';
 	}
 	$data = lgf_cycling_form_data( $lang );
