@@ -41,6 +41,22 @@ function lgf_motopress_customer_fields_for_english( $fields ) {
 }
 add_filter( 'mphb_customer_fields', 'lgf_motopress_customer_fields_for_english', 9999 );
 
+function lgf_motopress_optional_checkout_address_fields( $fields ) {
+	if ( ! is_array( $fields ) ) {
+		return $fields;
+	}
+	foreach ( array( 'address1', 'city', 'state', 'zip' ) as $name ) {
+		if ( isset( $fields[ $name ] ) && is_array( $fields[ $name ] ) ) {
+			$fields[ $name ]['required'] = false;
+			if ( 'state' === $name ) {
+				$fields[ $name ]['enabled'] = false;
+			}
+		}
+	}
+	return $fields;
+}
+add_filter( 'mphb_customer_fields', 'lgf_motopress_optional_checkout_address_fields', 10000 );
+
 function lgf_motopress_checkout_customer_fields_fallback( $output, $tag ) {
 	if ( ! is_string( $output ) || 'mphb_checkout' !== $tag || ( is_admin() && ! wp_doing_ajax() ) || ! function_exists( 'MPHB' ) ) {
 		return $output;
@@ -93,7 +109,6 @@ function lgf_motopress_checkout_customer_fields_fallback( $output, $tag ) {
 		$address_fields = array(
 			'address1' => array( 'Address', 'mphb-customer-address1' ),
 			'city'     => array( 'City', 'mphb-customer-city' ),
-			'state'    => array( 'State / County', 'mphb-customer-state' ),
 			'zip'      => array( 'Postcode', 'mphb-customer-zip' ),
 		);
 		foreach ( $address_fields as $name => $spec ) {
@@ -101,7 +116,7 @@ function lgf_motopress_checkout_customer_fields_fallback( $output, $tag ) {
 			if ( false !== strpos( $section, 'id="' . $id . '"' ) ) {
 				continue;
 			}
-			$fields .= '<p class="' . esc_attr( $spec[1] ) . '"><label for="' . esc_attr( $id ) . '">' . esc_html__( $spec[0], 'motopress-hotel-booking' ) . ' <abbr title="' . esc_attr__( 'Required', 'motopress-hotel-booking' ) . '">*</abbr></label><br /><input type="text" name="' . esc_attr( $id ) . '" id="' . esc_attr( $id ) . '"' . $required . ' /></p>';
+			$fields .= '<p class="' . esc_attr( $spec[1] ) . '"><label for="' . esc_attr( $id ) . '">' . esc_html__( $spec[0], 'motopress-hotel-booking' ) . '</label><br /><input type="text" name="' . esc_attr( $id ) . '" id="' . esc_attr( $id ) . '" /></p>';
 		}
 	}
 

@@ -336,8 +336,10 @@
 
 .mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-chip {
 	position: fixed;
-	right: 20px;
-	bottom: 20px;
+	top: 20px;
+	left: 20px;
+	right: auto;
+	bottom: auto;
 	z-index: 10000;
 	width: 58px;
 	height: 58px;
