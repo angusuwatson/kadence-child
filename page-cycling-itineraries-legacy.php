@@ -1,7 +1,7 @@
 <?php
 /**
- * Template Name: Cycling Itineraries Draft
- * Description: Public cycling holiday itinerary concept page.
+ * Template Name: Cycling Itineraries Legacy
+ * Description: Legacy full-page cycling template (kept for reference). New pages use the editable Gutenberg pattern instead.
  */
 
 defined( 'ABSPATH' ) || exit;

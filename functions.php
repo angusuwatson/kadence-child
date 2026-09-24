@@ -55,23 +55,45 @@ function kadence_child_enqueue_styles() {
 }
 add_action('wp_enqueue_scripts', 'kadence_child_enqueue_styles');
 
-function lgf_enqueue_cycling_itineraries_assets() {
-	if ( is_page_template( 'page-cycling-itineraries.php' ) ) {
-		wp_enqueue_style(
-			'lgf-cycling-itineraries',
-			get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
-			array( 'kadence-child-style' ),
-			'1.0.22'
-		);
-		wp_enqueue_style(
-			'lgf-cycling-palette',
-			get_stylesheet_directory_uri() . '/assets/css/cycling-palette.css',
-			array( 'lgf-cycling-itineraries' ),
-			'1.0.22'
-		);
-	}
+// Cycling landing pages are now regular Gutenberg pages that reuse the
+// custom classes below, so the styles always load (front end + editor).
+function lgf_enqueue_cycling_assets() {
+	wp_register_style(
+		'lgf-cycling-itineraries',
+		get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
+		array( 'kadence-child-style' ),
+		'1.0.23'
+	);
+	wp_register_style(
+		'lgf-cycling-palette',
+		get_stylesheet_directory_uri() . '/assets/css/cycling-palette.css',
+		array( 'lgf-cycling-itineraries' ),
+		'1.0.23'
+	);
+
+	wp_enqueue_style( 'lgf-cycling-itineraries' );
+	wp_enqueue_style( 'lgf-cycling-palette' );
 }
-add_action( 'wp_enqueue_scripts', 'lgf_enqueue_cycling_itineraries_assets' );
+add_action( 'wp_enqueue_scripts', 'lgf_enqueue_cycling_assets' );
+
+// Make the cycling design render correctly inside the block editor.
+function lgf_enqueue_cycling_editor_assets() {
+	wp_enqueue_style(
+		'lgf-cycling-itineraries',
+		get_stylesheet_directory_uri() . '/assets/css/cycling-itineraries.css',
+		array(),
+		'1.0.23'
+	);
+	wp_enqueue_style(
+		'lgf-cycling-palette',
+		get_stylesheet_directory_uri() . '/assets/css/cycling-palette.css',
+		array( 'lgf-cycling-itineraries' ),
+		'1.0.23'
+	);
+}
+add_action( 'enqueue_block_editor_assets', 'lgf_enqueue_cycling_editor_assets' );
+
+require_once get_stylesheet_directory() . '/inc/cycling-patterns.php';
 
 
 // Language Detection - Simple, but can be improved with more sophisticated methods
