@@ -218,7 +218,20 @@
 		hintEl.textContent = labels.addHint;
 		cart.insertBefore(hintEl, datesEl.nextSibling);
 
+		function updateCartIconPosition() {
+			var adminBar = document.getElementById('wpadminbar');
+			var top = 20;
+			if (adminBar) {
+				var bounds = adminBar.getBoundingClientRect();
+				if (bounds.bottom > 0) {
+					top = Math.max(top, Math.ceil(bounds.bottom + 12));
+				}
+			}
+			document.documentElement.style.setProperty('--lgf-cart-top', top + 'px');
+		}
+
 		function updateCartIconVisibility() {
+			updateCartIconPosition();
 			var hasSelection = cart.querySelectorAll('[name^="mphb_rooms_details"]').length > 0;
 			var cartBounds = cart.getBoundingClientRect();
 			var cartHasLeftViewport = cartBounds.bottom < 0;
@@ -373,6 +386,7 @@
 		}
 		window.addEventListener('scroll', updateCartIconVisibility, { passive: true });
 		window.addEventListener('resize', updateCartIconVisibility);
+		updateCartIconPosition();
 
 		chip.addEventListener('click', function () {
 			cart.scrollIntoView({ behavior: 'smooth', block: 'start' });

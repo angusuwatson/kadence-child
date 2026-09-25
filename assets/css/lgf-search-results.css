@@ -336,7 +336,7 @@
 
 .mphb_sc_search_results-wrapper > .mphb-reservation-cart .lgf-cart-chip {
 	position: fixed;
-	top: 20px;
+	top: var(--lgf-cart-top, 20px);
 	left: 20px;
 	right: auto;
 	bottom: auto;
