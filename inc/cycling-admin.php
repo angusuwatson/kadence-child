@@ -239,10 +239,22 @@ function lgf_cycling_admin_enqueue() {
 		'lgf-cycling-admin',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-admin.css',
 		array(),
-		'1.0.32'
+		'1.0.33'
 	);
 }
 add_action( 'admin_enqueue_scripts', 'lgf_cycling_admin_enqueue' );
+
+// The sidebar icon has to work on every admin screen, not just the editor
+// pages, so it gets its own always-on stylesheet.
+function lgf_cycling_menu_icon_enqueue() {
+	wp_enqueue_style(
+		'lgf-cycling-admin-menu',
+		get_stylesheet_directory_uri() . '/assets/css/cycling-admin-menu.css',
+		array(),
+		'1.0.33'
+	);
+}
+add_action( 'admin_enqueue_scripts', 'lgf_cycling_menu_icon_enqueue' );
 
 function lgf_cycling_field_id() {
 	static $n = 0;
@@ -346,13 +358,31 @@ function lgf_cycling_panel_hero( $i18n ) {
 			</div>
 			<div class="lgf-cyc-col">
 				<?php
-				lgf_cycling_i18n_fields(
-					$i18n,
-					array( 'hero_intro', 'cta_explore', 'cta_plan', 'stamp' ),
-					array( 'hero_intro' => 4, 'stamp' => 2 ),
-					array( 'stamp' => 'Two lines. Shown bottom-right of the hero on the live page.' )
-				);
+				lgf_cycling_i18n_fields( $i18n, array( 'hero_intro' ), array( 'hero_intro' => 4 ) );
 				?>
+				<div class="lgf-cyc-hero__actions">
+					<?php
+					lgf_cycling_i18n_fields(
+						$i18n,
+						array( 'cta_explore', 'cta_plan' ),
+						array(),
+						array(
+							'cta_explore' => 'Button text on the live page.',
+							'cta_plan'    => 'Link text next to the button.',
+						)
+					);
+					?>
+				</div>
+				<div class="lgf-cyc-hero__stamp">
+					<?php
+					lgf_cycling_i18n_fields(
+						$i18n,
+						array( 'stamp' ),
+						array( 'stamp' => 2 ),
+						array( 'stamp' => 'Two lines. Shown bottom-right of the hero on the live page.' )
+					);
+					?>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -489,7 +519,7 @@ function lgf_cycling_panel_plans( $i18n, $routes ) {
 							}
 							?>
 							<div class="lgf-cyc-days__row<?php echo $empty ? ' lgf-cyc-days--empty' : ''; ?>">
-								<span class="lgf-cyc-days__num"><?php echo $empty ? 'Hidden on live page' : esc_html( sprintf( 'Day %02d', $day ) ); ?></span>
+								<span class="lgf-cyc-days__num"><?php echo $empty ? 'Not used' : esc_html( sprintf( 'Day %02d', $day ) ); ?></span>
 								<?php
 								lgf_cycling_compact_field( 'cycling[routes][' . (int) $i . '][details][' . (int) $r . '][title]', $title, 'Title' );
 								lgf_cycling_compact_field( 'cycling[routes][' . (int) $i . '][details][' . (int) $r . '][desc]', $desc, 'Description' );

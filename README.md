@@ -7,6 +7,7 @@ direct-booking guard) + GitHub auto-updater.
 
 - `assets/css/lgf-search-results.css` — all search-results/cart CSS (enqueued on the page, versioned = auto cache-bust).
 - `assets/css/cycling-admin.css` — layout for wp-admin → Cycling → EN/FR/NL; mirrors the live page sections in columns (admin screens only).
+- `assets/css/cycling-admin-menu.css` — bicycle icon for the Cycling admin menu; loaded on every admin screen, since the menu is.
 - `assets/css/cycling-itineraries.css` + `assets/css/cycling-palette.css` — front-end design for the cycling pages.
 - `inc/cycling-admin.php` — the Cycling EN/FR/NL editor form, one panel per live-page section.
 - `assets/js/lgf-search-results.js` — cart + toggle logic.

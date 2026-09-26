@@ -195,6 +195,23 @@
 	color: rgba(255, 255, 255, .75);
 }
 
+/* Button and link labels sit side by side, like the live hero. */
+.lgf-cyc-hero__actions {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px 16px;
+}
+
+/* The stamp is a small badge, not a third full-width line of copy. */
+.lgf-cyc-hero__stamp {
+	max-width: 230px;
+	margin-left: auto;
+	padding: 8px 10px;
+	border: 1px solid rgba(255, 255, 255, .35);
+	border-radius: 2px;
+	background: rgba(0, 0, 0, .18);
+}
+
 /* ---------- generic fields ---------- */
 
 .lgf-cyc-grid {
@@ -303,7 +320,7 @@
 
 .lgf-cyc-card__top {
 	display: grid;
-	grid-template-columns: auto 1fr;
+	grid-template-columns: 64px minmax(0, 1fr);
 	gap: 12px;
 	align-items: end;
 	margin: 0 0 4px;
@@ -332,7 +349,7 @@
 
 .lgf-cyc-card__foot {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
 	gap: 12px;
 	padding-top: 12px;
 	border-top: 1px solid var(--lgf-line);
