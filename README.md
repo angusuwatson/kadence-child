@@ -6,6 +6,9 @@ direct-booking guard) + GitHub auto-updater.
 ## Quick files
 
 - `assets/css/lgf-search-results.css` — all search-results/cart CSS (enqueued on the page, versioned = auto cache-bust).
+- `assets/css/cycling-admin.css` — layout for wp-admin → Cycling → EN/FR/NL; mirrors the live page sections in columns (admin screens only).
+- `assets/css/cycling-itineraries.css` + `assets/css/cycling-palette.css` — front-end design for the cycling pages.
+- `inc/cycling-admin.php` — the Cycling EN/FR/NL editor form, one panel per live-page section.
 - `assets/js/lgf-search-results.js` — cart + toggle logic.
 - `hotel-booking/shortcodes/search-results/errors.php` — custom empty/error states.
 - `functions-updater-top.php` — prepend at the very top of `functions.php` (GitHub updater, loads PUC from `lib/`).

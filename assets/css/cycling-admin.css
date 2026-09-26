@@ -1,0 +1,528 @@
+/*
+ * Layout for wp-admin → Cycling → EN / FR / NL.
+ * Mirrors the front-end sections of the cycling pages (page-cycling-itineraries-legacy.php)
+ * so the form reads top-to-bottom like the live page: hero, intro, route cards,
+ * week plans, perks, booking. Admin only, never enqueued on the front end.
+ */
+
+.lgf-cyc-wrap {
+	--lgf-brown: #624438;
+	--lgf-brown-dark: #4a3128;
+	--lgf-aqua: #dff5f3;
+	--lgf-aqua-line: #b9dfdc;
+	--lgf-line: #d6dce1;
+	--lgf-text: #4a4a4a;
+	max-width: 1180px;
+	padding-bottom: 90px;
+	color: var(--lgf-text);
+}
+
+/* ---------- sticky header + language tabs ---------- */
+
+.lgf-cyc-bar {
+	position: sticky;
+	top: 32px;
+	z-index: 20;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px 20px;
+	margin: 0 0 18px;
+	padding: 10px 14px;
+	background: #fff;
+	border: 1px solid var(--lgf-line);
+	border-left: 4px solid var(--lgf-brown);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+
+.lgf-cyc-bar h1 {
+	margin: 0;
+	padding: 0;
+	font-size: 18px;
+	line-height: 1.3;
+}
+
+.lgf-cyc-tabs {
+	display: flex;
+	gap: 6px;
+	margin-left: auto;
+}
+
+.lgf-cyc-tabs a {
+	display: inline-block;
+	padding: 4px 12px;
+	border: 1px solid var(--lgf-line);
+	border-radius: 2px;
+	background: #fff;
+	color: var(--lgf-brown);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.lgf-cyc-tabs a:hover {
+	border-color: var(--lgf-brown);
+	color: var(--lgf-brown-dark);
+}
+
+.lgf-cyc-tabs a.is-current {
+	background: var(--lgf-brown);
+	border-color: var(--lgf-brown);
+	color: #fff;
+}
+
+.lgf-cyc-live {
+	font-size: 12px;
+	text-decoration: none;
+}
+
+.lgf-cyc-live:hover {
+	color: var(--lgf-brown-dark);
+}
+
+/* ---------- section nav ---------- */
+
+.lgf-cyc-nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0 0 20px;
+}
+
+.lgf-cyc-nav a {
+	padding: 3px 10px;
+	border: 1px solid var(--lgf-line);
+	border-radius: 999px;
+	background: #fff;
+	color: #646970;
+	font-size: 12px;
+	text-decoration: none;
+}
+
+.lgf-cyc-nav a:hover {
+	border-color: var(--lgf-brown);
+	color: var(--lgf-brown);
+}
+
+/* ---------- panels (one per live-page section) ---------- */
+
+.lgf-cyc-panel {
+	margin: 0 0 20px;
+	padding: 0;
+	background: #fff;
+	border: 1px solid var(--lgf-line);
+	border-top: 5px solid var(--lgf-brown);
+}
+
+.lgf-cyc-panel > h2 {
+	margin: 0;
+	padding: 12px 20px;
+	background: #faf5f1;
+	border-bottom: 1px solid var(--lgf-line);
+	color: var(--lgf-brown);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+}
+
+.lgf-cyc-panel--aqua {
+	border-top-color: var(--lgf-brown);
+	background: var(--lgf-aqua);
+}
+
+.lgf-cyc-panel--aqua > h2 {
+	background: #cdeceb;
+}
+
+.lgf-cyc-panel--grey {
+	background: #f4f4f4;
+}
+
+.lgf-cyc-panel--grey > h2 {
+	background: #e9e9e9;
+}
+
+.lgf-cyc-body,
+.lgf-cyc-pad {
+	padding: 20px;
+}
+
+/* Two-column heading rows: titles left, supporting copy right. */
+.lgf-cyc-head {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px 28px;
+	padding: 20px;
+	border-bottom: 1px solid var(--lgf-line);
+}
+
+/* A single stack of fields inside a column or panel. */
+.lgf-cyc-col {
+	display: grid;
+	align-content: start;
+	gap: 12px;
+	min-width: 0;
+}
+
+/* ---------- hero panel: mirrors .lgf-cycling-hero ---------- */
+
+.lgf-cyc-hero {
+	border: 0;
+	background:
+		linear-gradient(90deg, rgba(74, 49, 40, .86), rgba(74, 49, 40, .45)),
+		url('/wp-content/uploads/2019/06/la-grange-fleurie-cluny07-scaled-2.jpg') center / cover;
+	color: #fff;
+}
+
+.lgf-cyc-hero > h2 {
+	background: rgba(0, 0, 0, .25);
+	border-bottom-color: rgba(255, 255, 255, .2);
+	color: #e8ffff;
+}
+
+.lgf-cyc-hero .lgf-cyc-body {
+	display: grid;
+	grid-template-columns: 1.05fr 1fr;
+	gap: 18px 30px;
+	padding: 24px;
+}
+
+.lgf-cyc-hero .lgf-cyc-field__label {
+	color: #d9ffff;
+}
+
+.lgf-cyc-hero .lgf-cyc-field__hint {
+	color: rgba(255, 255, 255, .75);
+}
+
+/* ---------- generic fields ---------- */
+
+.lgf-cyc-grid {
+	display: grid;
+	gap: 14px 20px;
+}
+
+.lgf-cyc-grid--stack {
+	grid-template-columns: 1fr;
+}
+
+.lgf-cyc-grid--2 {
+	grid-template-columns: 1fr 1fr;
+}
+
+.lgf-cyc-grid--3 {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.lgf-cyc-grid--intro {
+	grid-template-columns: 1fr 1.25fr;
+}
+
+.lgf-cyc-grid--why {
+	grid-template-columns: 1fr 1.4fr;
+}
+
+.lgf-cyc-field {
+	display: block;
+	min-width: 0;
+}
+
+.lgf-cyc-field__label {
+	display: block;
+	margin: 0 0 4px;
+	color: #1d2327;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.lgf-cyc-input,
+.lgf-cyc-textarea {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 5px 8px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+	background: #fff;
+	color: #1d2327;
+	font-size: 13px;
+	line-height: 1.5;
+	box-shadow: none;
+}
+
+.lgf-cyc-textarea {
+	resize: vertical;
+	min-height: 62px;
+}
+
+.lgf-cyc-input:focus,
+.lgf-cyc-textarea:focus {
+	border-color: var(--lgf-brown);
+	box-shadow: 0 0 0 1px var(--lgf-brown);
+	outline: 2px solid transparent;
+}
+
+.lgf-cyc-field__hint {
+	margin: 4px 0 0;
+	color: #646970;
+	font-size: 11px;
+	line-height: 1.4;
+}
+
+/* Shared copy shown in more than one place on the live page. */
+.lgf-cyc-shared {
+	margin: 0;
+	padding: 12px 20px;
+	background: #f6f7f7;
+	border-top: 1px solid var(--lgf-line);
+	border-bottom: 1px solid var(--lgf-line);
+}
+
+.lgf-cyc-shared > h3 {
+	margin: 0 0 10px;
+	color: #646970;
+	font-size: 11px;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+}
+
+/* ---------- route cards: mirrors .lgf-cycling-route-card ---------- */
+
+.lgf-cyc-card {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 18px 16px;
+	background: #fff;
+	border: 1px solid var(--lgf-line);
+	border-top: 5px solid var(--lgf-brown);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+
+.lgf-cyc-card__top {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 12px;
+	align-items: end;
+	margin: 0 0 4px;
+}
+
+.lgf-cyc-card__top .lgf-cyc-input {
+	color: var(--lgf-brown);
+	font-size: 20px;
+	font-weight: 700;
+}
+
+.lgf-cyc-card__top > .lgf-cyc-field:last-child .lgf-cyc-input {
+	font-size: 11px;
+	text-align: right;
+	text-transform: uppercase;
+}
+
+.lgf-cyc-stats {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 22px;
+	margin: auto 0 0;
+	padding: 12px 0 0;
+	border-top: 1px solid var(--lgf-line);
+}
+
+.lgf-cyc-card__foot {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--lgf-line);
+}
+
+/* ---------- plan cards: mirrors .lgf-cycling-plan ---------- */
+
+.lgf-cyc-plan {
+	padding: 16px;
+	background: #fff;
+	border: 1px solid var(--lgf-line);
+	border-top: 5px solid var(--lgf-brown);
+}
+
+.lgf-cyc-plan__head {
+	display: flex;
+	align-items: end;
+	gap: 8px;
+	margin: 0 0 4px;
+}
+
+.lgf-cyc-plan__head .lgf-cyc-field {
+	flex: 0 0 76px;
+}
+
+.lgf-cyc-plan__head .lgf-cyc-input {
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--lgf-brown);
+}
+
+.lgf-cyc-plan__unit {
+	padding-bottom: 6px;
+	color: var(--lgf-brown);
+	font-size: 11px;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+}
+
+.lgf-cyc-plan__title {
+	margin: 0 0 12px;
+	color: var(--lgf-brown);
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.lgf-cyc-days {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px 14px;
+	margin: 0;
+}
+
+.lgf-cyc-days .lgf-cyc-field {
+	min-width: 0;
+}
+
+/* Blank rows are hidden on the front end, so keep them out of the way here too. */
+.lgf-cyc-days--empty {
+	opacity: .55;
+}
+
+.lgf-cyc-days__row {
+	padding: 8px;
+	background: #fbfbfb;
+	border: 1px dashed var(--lgf-line);
+}
+
+.lgf-cyc-days__num {
+	display: block;
+	margin: 0 0 6px;
+	color: var(--lgf-brown);
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: .06em;
+}
+
+/* ---------- perks: mirrors .lgf-cycling-perks ---------- */
+
+.lgf-cyc-perks {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px 20px;
+}
+
+.lgf-cyc-perk {
+	padding: 14px;
+	background: #fff;
+	border: 1px solid var(--lgf-line);
+}
+
+.lgf-cyc-perk--wide {
+	grid-column: span 2;
+	max-width: 320px;
+}
+
+.lgf-cyc-perk__num {
+	display: block;
+	margin: 0 0 6px;
+	color: var(--lgf-brown);
+	font-size: 11px;
+	font-weight: 700;
+}
+
+/* ---------- booking panel: mirrors .lgf-cycling-booking__inner ---------- */
+
+.lgf-cyc-booking {
+	background: var(--lgf-aqua);
+	border-color: var(--lgf-aqua-line);
+}
+
+.lgf-cyc-booking .lgf-cyc-body {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px 30px;
+}
+
+/* ---------- sticky save bar ---------- */
+
+.lgf-cyc-save {
+	position: fixed;
+	left: 160px;
+	right: 0;
+	bottom: 0;
+	z-index: 30;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 16px;
+	padding: 10px 20px;
+	background: #fff;
+	border-top: 1px solid var(--lgf-line);
+	box-shadow: 0 -1px 3px rgba(0, 0, 0, .06);
+}
+
+.lgf-cyc-save p {
+	margin: 0;
+	color: #646970;
+	font-size: 12px;
+}
+
+.lgf-cyc-save .button-primary {
+	background: var(--lgf-brown);
+	border-color: var(--lgf-brown);
+}
+
+.lgf-cyc-save .button-primary:hover,
+.lgf-cyc-save .button-primary:focus {
+	background: var(--lgf-brown-dark);
+	border-color: var(--lgf-brown-dark);
+}
+
+/* ---------- narrower screens ---------- */
+
+@media screen and (max-width: 1400px) {
+	.lgf-cyc-grid--3 {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+@media screen and (max-width: 960px) {
+	.lgf-cyc-save {
+		left: 36px;
+	}
+
+	.lgf-cyc-grid--2,
+	.lgf-cyc-grid--3,
+	.lgf-cyc-grid--intro,
+	.lgf-cyc-grid--why,
+	.lgf-cyc-head,
+	.lgf-cyc-hero .lgf-cyc-body,
+	.lgf-cyc-booking .lgf-cyc-body {
+		grid-template-columns: 1fr;
+	}
+
+	.lgf-cyc-days {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media screen and (max-width: 782px) {
+	.lgf-cyc-save {
+		left: 0;
+	}
+
+	.lgf-cyc-bar {
+		top: 46px;
+	}
+
+	.lgf-cyc-tabs {
+		margin-left: 0;
+	}
+}

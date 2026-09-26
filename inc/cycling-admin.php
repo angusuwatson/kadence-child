@@ -228,32 +228,329 @@ function lgf_cycling_menu() {
 }
 add_action( 'admin_menu', 'lgf_cycling_menu' );
 
-function lgf_cycling_field_row( $label, $name, $value, $type = 'text', $hint = '' ) {
+// Admin-only stylesheet for the Cycling screens. It is never enqueued on the
+// front end, so it can lay the form out in columns without touching the pages.
+function lgf_cycling_admin_enqueue() {
+	$page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
+	if ( 0 !== strpos( $page, 'lgf-cycling-' ) ) {
+		return;
+	}
+	wp_enqueue_style(
+		'lgf-cycling-admin',
+		get_stylesheet_directory_uri() . '/assets/css/cycling-admin.css',
+		array(),
+		'1.0.32'
+	);
+}
+add_action( 'admin_enqueue_scripts', 'lgf_cycling_admin_enqueue' );
+
+function lgf_cycling_field_id() {
 	static $n = 0;
 	$n++;
-	$id  = 'lgf-cyc-f' . $n;
-	$cls = ( 'textarea' === $type ) ? 'large-text' : 'regular-text';
-	echo '<tr><th scope="row"><label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label></th><td>';
-	if ( 'textarea' === $type ) {
-		echo '<textarea class="' . esc_attr( $cls ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" rows="3">' . esc_textarea( $value ) . '</textarea>';
-	} else {
-		echo '<input type="text" class="' . esc_attr( $cls ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" />';
-	}
-	if ( $hint ) {
-		echo '<p class="description">' . esc_html( $hint ) . '</p>';
-	}
-	echo '</td></tr>';
+	return 'lgf-cyc-f' . $n;
 }
 
-function lgf_cycling_purge_page_cache( $lang ) {
-	$slugs = array(
+// One label-above field, sized to the card it sits in.
+function lgf_cycling_field( $label, $name, $value, $type = 'text', $rows = 3, $hint = '' ) {
+	$id = lgf_cycling_field_id();
+	echo '<label class="lgf-cyc-field" for="' . esc_attr( $id ) . '">';
+	echo '<span class="lgf-cyc-field__label">' . esc_html( $label ) . '</span>';
+	if ( 'textarea' === $type ) {
+		echo '<textarea class="lgf-cyc-textarea" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" rows="' . (int) $rows . '">' . esc_textarea( $value ) . '</textarea>';
+	} else {
+		echo '<input type="text" class="lgf-cyc-input" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" />';
+	}
+	if ( $hint ) {
+		echo '<span class="lgf-cyc-field__hint">' . esc_html( $hint ) . '</span>';
+	}
+	echo '</label>';
+}
+
+// Placeholder-only input, for the dense day rows where a label per input is noise.
+function lgf_cycling_compact_field( $name, $value, $placeholder = '' ) {
+	$id = lgf_cycling_field_id();
+	echo '<input type="text" class="lgf-cyc-input" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" aria-label="' . esc_attr( $placeholder ) . '" />';
+}
+
+// lgf_cycling_i18n_spec() is grouped by section; flatten it to key => label/type
+// so panels can ask for fields by name.
+function lgf_cycling_i18n_field_spec() {
+	$flat = array();
+	foreach ( lgf_cycling_i18n_spec() as $fields ) {
+		foreach ( $fields as $key => $meta ) {
+			$flat[ $key ] = $meta;
+		}
+	}
+	return $flat;
+}
+
+// Renders the requested keys of a language section, using the labels in the spec.
+function lgf_cycling_i18n_fields( $i18n, $keys, $rows = array(), $hints = array() ) {
+	$spec = lgf_cycling_i18n_field_spec();
+	foreach ( $keys as $key ) {
+		if ( ! isset( $spec[ $key ] ) ) {
+			continue;
+		}
+		list( $label, $type ) = $spec[ $key ];
+		lgf_cycling_field(
+			$label,
+			'cycling[i18n][' . $key . ']',
+			isset( $i18n[ $key ] ) ? $i18n[ $key ] : '',
+			$type,
+			isset( $rows[ $key ] ) ? $rows[ $key ] : 3,
+			isset( $hints[ $key ] ) ? $hints[ $key ] : ''
+		);
+	}
+}
+
+function lgf_cycling_route_field( $index, $route, $key, $rows = 3, $hint = '' ) {
+	$spec = lgf_cycling_route_field_spec();
+	if ( ! isset( $spec[ $key ] ) ) {
+		return;
+	}
+	list( $label, $type ) = $spec[ $key ];
+	lgf_cycling_field(
+		$label,
+		'cycling[routes][' . (int) $index . '][' . $key . ']',
+		isset( $route[ $key ] ) ? $route[ $key ] : '',
+		$type,
+		$rows,
+		$hint
+	);
+}
+
+function lgf_cycling_slugs() {
+	return array(
 		'en' => 'cycling-itineraries',
 		'fr' => 'sejours-cyclistes',
 		'nl' => 'fietsvakanties',
 	);
+}
+
+function lgf_cycling_purge_page_cache( $lang ) {
+	$slugs = lgf_cycling_slugs();
 	if ( isset( $slugs[ $lang ] ) ) {
 		do_action( 'litespeed_purge_url', home_url( '/' . $slugs[ $lang ] . '/' ) );
 	}
+}
+
+// The form is laid out one panel per live-page section, in the same order and
+// the same column rhythm, so the admin screen reads like the page it feeds.
+function lgf_cycling_panel_hero( $i18n ) {
+	?>
+	<section class="lgf-cyc-panel lgf-cyc-hero" id="lgf-cyc-hero">
+		<h2>Hero</h2>
+		<div class="lgf-cyc-body">
+			<div class="lgf-cyc-col">
+				<?php lgf_cycling_i18n_fields( $i18n, array( 'hero_kicker', 'hero_title_1', 'hero_title_2' ) ); ?>
+			</div>
+			<div class="lgf-cyc-col">
+				<?php
+				lgf_cycling_i18n_fields(
+					$i18n,
+					array( 'hero_intro', 'cta_explore', 'cta_plan', 'stamp' ),
+					array( 'hero_intro' => 4, 'stamp' => 2 ),
+					array( 'stamp' => 'Two lines. Shown bottom-right of the hero on the live page.' )
+				);
+				?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+function lgf_cycling_panel_intro( $i18n ) {
+	?>
+	<section class="lgf-cyc-panel" id="lgf-cyc-intro">
+		<h2>Intro</h2>
+		<div class="lgf-cyc-grid lgf-cyc-grid--intro lgf-cyc-pad">
+			<div class="lgf-cyc-col">
+				<?php lgf_cycling_i18n_fields( $i18n, array( 'intro_kicker', 'intro_title_1', 'intro_title_2' ) ); ?>
+			</div>
+			<div class="lgf-cyc-col">
+				<?php
+				lgf_cycling_i18n_fields(
+					$i18n,
+					array( 'intro_copy', 'note_bold', 'note' ),
+					array( 'intro_copy' => 6, 'note' => 4 ),
+					array( 'note' => 'Tinted note box under the copy, marked with a small flower.' )
+				);
+				?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+function lgf_cycling_panel_pace( $i18n, $routes ) {
+	?>
+	<section class="lgf-cyc-panel lgf-cyc-panel--aqua" id="lgf-cyc-pace">
+		<h2>Pick your pace — three route cards</h2>
+		<div class="lgf-cyc-head">
+			<div class="lgf-cyc-col">
+				<?php lgf_cycling_i18n_fields( $i18n, array( 'pick_kicker', 'pick_title' ) ); ?>
+			</div>
+			<div class="lgf-cyc-col">
+				<?php lgf_cycling_i18n_fields( $i18n, array( 'pick_copy' ), array( 'pick_copy' => 3 ) ); ?>
+			</div>
+		</div>
+		<div class="lgf-cyc-shared">
+			<h3>Labels shared by all three cards</h3>
+			<div class="lgf-cyc-grid lgf-cyc-grid--3">
+				<?php lgf_cycling_i18n_fields( $i18n, array( 'stat_distance', 'stat_climbing', 'see_plan' ) ); ?>
+			</div>
+		</div>
+		<div class="lgf-cyc-grid lgf-cyc-grid--3 lgf-cyc-pad">
+			<?php foreach ( $routes as $i => $route ) : ?>
+				<?php $file = isset( $route['file'] ) ? (string) $route['file'] : ''; ?>
+				<article class="lgf-cyc-card">
+					<div class="lgf-cyc-card__top">
+						<?php
+						lgf_cycling_route_field( $i, $route, 'number' );
+						lgf_cycling_route_field( $i, $route, 'tag' );
+						?>
+					</div>
+					<?php
+					lgf_cycling_route_field( $i, $route, 'eyebrow' );
+					lgf_cycling_route_field( $i, $route, 'title' );
+					lgf_cycling_route_field( $i, $route, 'description', 5 );
+					?>
+					<div class="lgf-cyc-stats">
+						<?php
+						lgf_cycling_route_field( $i, $route, 'distance' );
+						lgf_cycling_route_field( $i, $route, 'elevation' );
+						?>
+					</div>
+					<div class="lgf-cyc-card__foot">
+						<?php
+						lgf_cycling_route_field( $i, $route, 'rides' );
+						lgf_cycling_route_field(
+							$i,
+							$route,
+							'file',
+							3,
+							'' === trim( $file )
+								? ''
+								: ( file_exists( get_stylesheet_directory() . '/assets/routes/' . $file )
+									? 'Found in assets/routes.'
+									: 'Missing from assets/routes — the download link will 404.' )
+						);
+						?>
+					</div>
+				</article>
+			<?php endforeach; ?>
+		</div>
+	</section>
+	<?php
+}
+
+function lgf_cycling_panel_plans( $i18n, $routes ) {
+	?>
+	<section class="lgf-cyc-panel" id="lgf-cyc-plan">
+		<h2>Week plan — one card per route</h2>
+		<div class="lgf-cyc-head">
+			<div class="lgf-cyc-col">
+				<?php lgf_cycling_i18n_fields( $i18n, array( 'details_kicker', 'details_title_1', 'details_title_2' ) ); ?>
+			</div>
+			<div class="lgf-cyc-col">
+				<?php
+				lgf_cycling_i18n_fields(
+					$i18n,
+					array( 'details_copy', 'download', 'nights' ),
+					array( 'details_copy' => 3 ),
+					array(
+						'download' => 'Link label on every plan card, next to the GPX download.',
+						'nights'   => 'Unit word under the night count, e.g. nights / nuits / nachten.',
+					)
+				);
+				?>
+			</div>
+		</div>
+		<div class="lgf-cyc-grid lgf-cyc-grid--3 lgf-cyc-pad">
+			<?php foreach ( $routes as $i => $route ) : ?>
+				<article class="lgf-cyc-plan">
+					<div class="lgf-cyc-plan__head">
+						<?php lgf_cycling_route_field( $i, $route, 'nights' ); ?>
+						<span class="lgf-cyc-plan__unit"><?php echo esc_html( isset( $i18n['nights'] ) ? $i18n['nights'] : '' ); ?></span>
+					</div>
+					<p class="lgf-cyc-plan__title"><?php echo esc_html( isset( $route['title'] ) ? $route['title'] : '' ); ?></p>
+					<div class="lgf-cyc-days">
+						<?php
+						$day = 0;
+						$blank = 0;
+						for ( $r = 0; $r < 6; $r++ ) :
+							$title = isset( $route['details'][ $r ][0] ) ? (string) $route['details'][ $r ][0] : '';
+							$desc  = isset( $route['details'][ $r ][1] ) ? (string) $route['details'][ $r ][1] : '';
+							$empty = '' === trim( $title ) && '' === trim( $desc );
+							if ( $empty ) {
+								$blank++;
+							} else {
+								$day++;
+							}
+							?>
+							<div class="lgf-cyc-days__row<?php echo $empty ? ' lgf-cyc-days--empty' : ''; ?>">
+								<span class="lgf-cyc-days__num"><?php echo $empty ? 'Hidden on live page' : esc_html( sprintf( 'Day %02d', $day ) ); ?></span>
+								<?php
+								lgf_cycling_compact_field( 'cycling[routes][' . (int) $i . '][details][' . (int) $r . '][title]', $title, 'Title' );
+								lgf_cycling_compact_field( 'cycling[routes][' . (int) $i . '][details][' . (int) $r . '][desc]', $desc, 'Description' );
+								?>
+							</div>
+						<?php endfor; ?>
+					</div>
+				</article>
+			<?php endforeach; ?>
+		</div>
+	</section>
+	<?php
+}
+
+function lgf_cycling_panel_why( $i18n ) {
+	$perks = array(
+		1 => array( 'perk_1_t', 'perk_1_d' ),
+		2 => array( 'perk_2_t', 'perk_2_d' ),
+		3 => array( 'perk_3_t', 'perk_3_d' ),
+	);
+	?>
+	<section class="lgf-cyc-panel lgf-cyc-panel--grey" id="lgf-cyc-why">
+		<h2>Why stay with us</h2>
+		<div class="lgf-cyc-grid lgf-cyc-grid--why lgf-cyc-pad">
+			<div class="lgf-cyc-col">
+				<?php lgf_cycling_i18n_fields( $i18n, array( 'why_kicker', 'why_title_1', 'why_title_2' ) ); ?>
+			</div>
+			<div class="lgf-cyc-perks">
+				<?php foreach ( $perks as $n => $keys ) : ?>
+					<div class="lgf-cyc-perk<?php echo ( 3 === $n ) ? ' lgf-cyc-perk--wide' : ''; ?>">
+						<span class="lgf-cyc-perk__num"><?php echo esc_html( sprintf( '%02d', $n ) ); ?></span>
+						<?php lgf_cycling_i18n_fields( $i18n, $keys, array( $keys[1] => 3 ) ); ?>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+function lgf_cycling_panel_booking( $i18n ) {
+	?>
+	<section class="lgf-cyc-panel lgf-cyc-booking" id="lgf-cyc-booking">
+		<h2>Booking</h2>
+		<div class="lgf-cyc-body">
+			<div class="lgf-cyc-col">
+				<?php lgf_cycling_i18n_fields( $i18n, array( 'book_kicker', 'book_title_1', 'book_title_2' ) ); ?>
+			</div>
+			<div class="lgf-cyc-col">
+				<?php
+				lgf_cycling_i18n_fields(
+					$i18n,
+					array( 'book_copy', 'book_cta', 'book_url' ),
+					array( 'book_copy' => 4 ),
+					array( 'book_url' => 'Relative paths are fine, e.g. /booking/' )
+				);
+				?>
+			</div>
+		</div>
+	</section>
+	<?php
 }
 
 function lgf_cycling_render_page() {
@@ -269,50 +566,42 @@ function lgf_cycling_render_page() {
 		lgf_cycling_purge_page_cache( $lang );
 		echo '<div class="notice notice-success is-dismissible"><p>Saved ' . esc_html( lgf_cycling_lang_label( $lang ) ) . ' copy.</p></div>';
 	}
-	$data = lgf_cycling_form_data( $lang );
+	$data   = lgf_cycling_form_data( $lang );
+	$i18n   = $data['i18n'];
+	$routes = $data['routes'];
 	?>
-	<div class="wrap">
-		<h1>Cycling content — <?php echo esc_html( lgf_cycling_lang_label( $lang ) ); ?></h1>
-		<p>Feeds the cycling pages via the legacy template. Blank detail rows are hidden on the front end.</p>
+	<div class="wrap lgf-cyc-wrap">
+		<div class="lgf-cyc-bar">
+			<h1>Cycling content — <?php echo esc_html( lgf_cycling_lang_label( $lang ) ); ?></h1>
+			<div class="lgf-cyc-tabs">
+				<?php foreach ( lgf_cycling_languages() as $code ) : ?>
+					<a class="<?php echo ( $code === $lang ) ? 'is-current' : ''; ?>" href="<?php echo esc_url( admin_url( 'admin.php?page=lgf-cycling-' . $code ) ); ?>"><?php echo esc_html( strtoupper( $code ) ); ?></a>
+				<?php endforeach; ?>
+			</div>
+			<a class="lgf-cyc-live" href="<?php echo esc_url( home_url( '/' . lgf_cycling_slugs()[ $lang ] . '/' ) ); ?>" target="_blank" rel="noopener">View live page &nearr;</a>
+		</div>
+		<nav class="lgf-cyc-nav">
+			<a href="#lgf-cyc-hero">Hero</a>
+			<a href="#lgf-cyc-intro">Intro</a>
+			<a href="#lgf-cyc-pace">Route cards</a>
+			<a href="#lgf-cyc-plan">Week plans</a>
+			<a href="#lgf-cyc-why">Perks</a>
+			<a href="#lgf-cyc-booking">Booking</a>
+		</nav>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=' . $page ) ); ?>">
 			<?php wp_nonce_field( 'lgf_cycling_save_' . $lang, 'lgf_cycling_nonce' ); ?>
-			<?php foreach ( lgf_cycling_i18n_spec() as $section => $fields ) : ?>
-				<h2><?php echo esc_html( $section ); ?></h2>
-				<table class="form-table" role="presentation">
-					<?php
-					foreach ( $fields as $key => $meta ) {
-						lgf_cycling_field_row( $meta[0], 'cycling[i18n][' . $key . ']', $data['i18n'][ $key ], $meta[1] );
-					}
-					?>
-				</table>
-			<?php endforeach; ?>
-			<h2>Route cards</h2>
-			<?php $nums = array( '01', '02', '03' ); ?>
-			<?php foreach ( $data['routes'] as $i => $route ) : ?>
-				<h3>Route card <?php echo esc_html( isset( $nums[ $i ] ) ? $nums[ $i ] : ( $i + 1 ) ); ?></h3>
-				<table class="form-table" role="presentation">
-					<?php
-					foreach ( lgf_cycling_route_field_spec() as $key => $meta ) {
-						$val = isset( $route[ $key ] ) ? $route[ $key ] : '';
-						lgf_cycling_field_row( $meta[0], 'cycling[routes][' . $i . '][' . $key . ']', $val, $meta[1] );
-					}
-					?>
-				</table>
-				<h4>Details (blank rows hidden)</h4>
-				<table class="form-table" role="presentation">
-					<?php for ( $r = 0; $r < 6; $r++ ) : ?>
-						<tr>
-							<th scope="row">Row <?php echo esc_html( $r + 1 ); ?></th>
-							<td>
-								<input type="text" class="regular-text" name="cycling[routes][<?php echo esc_attr( $i ); ?>][details][<?php echo esc_attr( $r ); ?>][title]" value="<?php echo esc_attr( $route['details'][ $r ][0] ); ?>" placeholder="Title" />
-								<br />
-								<input type="text" class="large-text" name="cycling[routes][<?php echo esc_attr( $i ); ?>][details][<?php echo esc_attr( $r ); ?>][desc]" value="<?php echo esc_attr( $route['details'][ $r ][1] ); ?>" placeholder="Description" />
-							</td>
-						</tr>
-					<?php endfor; ?>
-				</table>
-			<?php endforeach; ?>
-			<p class="submit"><input type="submit" name="lgf_cycling_save" class="button button-primary" value="Save Changes" /></p>
+			<?php
+			lgf_cycling_panel_hero( $i18n );
+			lgf_cycling_panel_intro( $i18n );
+			lgf_cycling_panel_pace( $i18n, $routes );
+			lgf_cycling_panel_plans( $i18n, $routes );
+			lgf_cycling_panel_why( $i18n );
+			lgf_cycling_panel_booking( $i18n );
+			?>
+			<div class="lgf-cyc-save">
+				<p>Panels follow the live page top to bottom. Blank day rows are hidden on the front end.</p>
+				<button type="submit" class="button button-primary" name="lgf_cycling_save" value="1">Save Changes</button>
+			</div>
 		</form>
 	</div>
 	<?php
