@@ -97,6 +97,61 @@ require_once get_stylesheet_directory() . '/inc/cycling-patterns.php';
 require_once get_stylesheet_directory() . '/inc/cycling-admin.php';
 require_once get_stylesheet_directory() . '/inc/motopress-polylang.php';
 
+// Keep LGF and MotoPress admin screens together above WooCommerce.
+add_filter( 'custom_menu_order', '__return_true' );
+add_filter( 'menu_order', 'lgf_kadence_child_reorder_admin_menu', 9999 );
+
+function lgf_kadence_child_reorder_admin_menu( $menu_order ) {
+	global $menu;
+
+	if ( ! is_array( $menu_order ) || ! is_array( $menu ) ) {
+		return $menu_order;
+	}
+
+	$wanted_labels = array(
+		'lgf bookings'  => 'lgf_bookings',
+		'cycling pages' => 'cycling_pages',
+		'cycling'       => 'cycling_pages',
+		'accommodation' => 'accommodation',
+		'bookings'      => 'bookings',
+		'woocommerce'   => 'woocommerce',
+	);
+	$found_slugs = array();
+
+	foreach ( $menu as $item ) {
+		if ( ! isset( $item[0], $item[2] ) ) {
+			continue;
+		}
+
+		$label = strtolower( trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $item[0] ) ) ) );
+		$label = preg_replace( '/\s+\d+$/', '', $label );
+
+		if ( isset( $wanted_labels[ $label ] ) && ! isset( $found_slugs[ $wanted_labels[ $label ] ] ) ) {
+			$found_slugs[ $wanted_labels[ $label ] ] = $item[2];
+		}
+	}
+
+	if ( empty( $found_slugs['woocommerce'] ) ) {
+		return $menu_order;
+	}
+
+	$ordered_slugs = array();
+	foreach ( array( 'lgf_bookings', 'cycling_pages', 'accommodation', 'bookings' ) as $key ) {
+		if ( isset( $found_slugs[ $key ] ) ) {
+			$ordered_slugs[] = $found_slugs[ $key ];
+		}
+	}
+
+	$menu_order = array_values( array_diff( $menu_order, $ordered_slugs ) );
+	$woocommerce_position = array_search( $found_slugs['woocommerce'], $menu_order, true );
+
+	if ( false !== $woocommerce_position ) {
+		array_splice( $menu_order, $woocommerce_position, 0, $ordered_slugs );
+	}
+
+	return $menu_order;
+}
+
 
 // Language Detection - Simple, but can be improved with more sophisticated methods
 function get_user_language() {
