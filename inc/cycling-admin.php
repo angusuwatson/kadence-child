@@ -275,7 +275,7 @@ function lgf_cycling_admin_enqueue() {
 		'lgf-cycling-admin',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-admin.css',
 		array(),
-		'1.0.35'
+		'1.0.36'
 	);
 }
 add_action( 'admin_enqueue_scripts', 'lgf_cycling_admin_enqueue' );
@@ -287,7 +287,7 @@ function lgf_cycling_menu_icon_enqueue() {
 		'lgf-cycling-admin-menu',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-admin-menu.css',
 		array(),
-		'1.0.35'
+		'1.0.36'
 	);
 }
 add_action( 'admin_enqueue_scripts', 'lgf_cycling_menu_icon_enqueue' );

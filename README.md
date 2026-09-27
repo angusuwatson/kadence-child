@@ -10,6 +10,7 @@ direct-booking guard) + GitHub auto-updater.
 - `assets/css/cycling-admin-menu.css` — bicycle icon for the Cycling admin menu; loaded on every admin screen, since the menu is.
 - `assets/css/cycling-itineraries.css` + `assets/css/cycling-palette.css` — front-end design for the cycling pages.
 - `inc/cycling-admin.php` — the Cycling EN/FR/NL editor form, one panel per live-page section.
+- `page-cycling-itineraries.php` — page template assigned to published cycling pages; delegates to the dynamic renderer so EN/FR/NL editor changes reach the front end.
 
 ## Cycling GPX downloads
 
