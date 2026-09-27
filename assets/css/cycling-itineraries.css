@@ -5,3 +5,8 @@
 .lgf-cycling-plan__body .lgf-cycling-plan__day > span{position:absolute;left:-9999px;top:auto;overflow:hidden;width:1px;height:1px}
 .lgf-cycling-plan__body .lgf-cycling-plan__day strong{display:block;color:inherit;font-weight:700}
 .lgf-cycling-plan__body .lgf-cycling-plan__day small{display:block;font-size:12px;opacity:.75;margin-top:3px}
+
+/* Per-riding-day GPX link, set on the itinerary item in wp-admin. */
+.lgf-cycling-day__gpx{display:inline-flex;align-items:center;gap:7px;margin-top:9px;padding:4px 10px;border:1px solid var(--blue);border-radius:2px;color:var(--blue);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.05em;line-height:1.3;text-transform:uppercase;white-space:nowrap}
+.lgf-cycling-day__gpx:hover,.lgf-cycling-day__gpx:focus{background:var(--blue);color:#fff}
+.lgf-cycling-day__gpx span{font-size:14px;line-height:0}

@@ -10,6 +10,22 @@ direct-booking guard) + GitHub auto-updater.
 - `assets/css/cycling-admin-menu.css` — bicycle icon for the Cycling admin menu; loaded on every admin screen, since the menu is.
 - `assets/css/cycling-itineraries.css` + `assets/css/cycling-palette.css` — front-end design for the cycling pages.
 - `inc/cycling-admin.php` — the Cycling EN/FR/NL editor form, one panel per live-page section.
+
+## Cycling GPX downloads
+
+Three places, all in `assets/routes/`:
+
+- Per riding day — set `details[r][file]` on a plan card in wp-admin. Days with a file get a small
+  "Download GPX" link under the itinerary entry; days without one (arrival, rest) show nothing.
+  `.gpx` only.
+- Per package — set `archive` on a plan card. The button under the plan downloads this ZIP.
+  `.zip` only.
+- Fallback — `file` on the pace card is only used for the package button when no ZIP is set.
+
+Filenames are sanitised to a bare name with an expected extension, so paths and other file types are
+rejected on save. The editor flags a name that is not present in `assets/routes/` as a 404 risk.
+Per-day links are per-language content; the file names themselves are not, so all three languages
+carry the same `details` files.
 - `assets/js/lgf-search-results.js` — cart + toggle logic.
 - `hotel-booking/shortcodes/search-results/errors.php` — custom empty/error states.
 - `functions-updater-top.php` — prepend at the very top of `functions.php` (GitHub updater, loads PUC from `lib/`).

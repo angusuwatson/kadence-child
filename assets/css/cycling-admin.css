@@ -396,6 +396,13 @@
 	font-weight: 600;
 }
 
+/* Package ZIP field, below the day grid in each plan card. */
+.lgf-cyc-plan__foot {
+	margin: 12px 0 0;
+	padding-top: 12px;
+	border-top: 1px solid var(--lgf-line);
+}
+
 .lgf-cyc-days {
 	display: grid;
 	grid-template-columns: 1fr 1fr;

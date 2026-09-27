@@ -64,15 +64,26 @@ function lgf_cycling_data( $lang ) {
 					$def[ $k ] = $sv[ $k ];
 				}
 			}
+			// A field added to the spec but not yet to the defaults file would
+			// otherwise be dropped here, losing whatever was saved for it.
+			foreach ( array_keys( lgf_cycling_route_field_spec() ) as $k ) {
+				if ( 'details' === $k ) {
+					continue;
+				}
+				if ( ! array_key_exists( $k, $def ) && array_key_exists( $k, $sv ) ) {
+					$def[ $k ] = $sv[ $k ];
+				}
+			}
 			if ( isset( $sv['details'] ) && is_array( $sv['details'] ) ) {
 				$rows = array();
 				for ( $r = 0; $r < 6; $r++ ) {
 					$t = isset( $sv['details'][ $r ][0] ) ? (string) $sv['details'][ $r ][0] : '';
 					$s = isset( $sv['details'][ $r ][1] ) ? (string) $sv['details'][ $r ][1] : '';
-					if ( '' === trim( $t ) && '' === trim( $s ) ) {
+					$f = isset( $sv['details'][ $r ][2] ) ? (string) $sv['details'][ $r ][2] : '';
+					if ( '' === trim( $t ) && '' === trim( $s ) && '' === trim( $f ) ) {
 						continue;
 					}
-					$rows[] = array( $t, $s );
+					$rows[] = array( $t, $s, $f );
 				}
 				$def['details'] = $rows;
 			}
@@ -90,6 +101,7 @@ function lgf_cycling_form_data( $lang ) {
 			$rows[ $x ] = array(
 				isset( $r['details'][ $x ][0] ) ? (string) $r['details'][ $x ][0] : '',
 				isset( $r['details'][ $x ][1] ) ? (string) $r['details'][ $x ][1] : '',
+				isset( $r['details'][ $x ][2] ) ? (string) $r['details'][ $x ][2] : '',
 			);
 		}
 		$data['routes'][ $i ]['details'] = $rows;
@@ -130,7 +142,9 @@ function lgf_cycling_i18n_spec() {
 			'details_title_2' => array( 'Title line 2', 'text' ),
 			'details_copy'    => array( 'Copy paragraph', 'textarea' ),
 			'nights'          => array( 'Nights label (under card numbers)', 'text' ),
-			'download'        => array( 'GPX download label', 'text' ),
+			'download'        => array( 'Legacy GPX label (fallback, not shown)', 'text' ),
+			'download_all'    => array( 'Download-all button label', 'text' ),
+			'download_day'    => array( 'Per-day GPX link label', 'text' ),
 		),
 		'Why stay with us' => array(
 			'why_kicker'  => array( 'Kicker', 'text' ),
@@ -165,8 +179,25 @@ function lgf_cycling_route_field_spec() {
 		'elevation'   => array( 'Stat: climbing', 'text' ),
 		'rides'       => array( 'Card footer: rides', 'text' ),
 		'tag'         => array( 'Top tag', 'text' ),
-		'file'        => array( 'GPX filename (in assets/routes/)', 'text' ),
+		'file'        => array( 'Fallback GPX filename (assets/routes/)', 'text', 'gpx' ),
+		'archive'     => array( 'Package ZIP filename (assets/routes/)', 'text', 'zip' ),
 	);
+}
+
+// A filename typed into the editor ends up in a public URL, so keep it to a
+// bare name with an expected extension. Blocks ".." and any path escaping.
+function lgf_cycling_sanitize_file( $raw, $allowed = 'gpx,zip,fit,tcx,kmz' ) {
+	$raw = is_scalar( $raw ) ? (string) $raw : '';
+	$raw = basename( str_replace( '\\', '/', trim( $raw ) ) );
+	$raw = sanitize_file_name( $raw );
+	if ( '' === $raw ) {
+		return '';
+	}
+	$ext = strtolower( (string) pathinfo( $raw, PATHINFO_EXTENSION ) );
+	if ( ! in_array( $ext, explode( ',', $allowed ), true ) ) {
+		return '';
+	}
+	return $raw;
 }
 
 function lgf_cycling_sanitize( $in ) {
@@ -198,13 +229,18 @@ function lgf_cycling_sanitize( $in ) {
 				continue;
 			}
 			$raw = is_scalar( $sv[ $key ] ) ? (string) $sv[ $key ] : '';
-			$rout[ $key ] = ( 'textarea' === $type ) ? sanitize_textarea_field( $raw ) : sanitize_text_field( $raw );
+			if ( isset( $meta[2] ) ) {
+				$rout[ $key ] = lgf_cycling_sanitize_file( $raw, $meta[2] );
+			} else {
+				$rout[ $key ] = ( 'textarea' === $type ) ? sanitize_textarea_field( $raw ) : sanitize_text_field( $raw );
+			}
 		}
 		$details = array();
 		for ( $r = 0; $r < 6; $r++ ) {
 			$t = isset( $sv['details'][ $r ]['title'] ) && is_scalar( $sv['details'][ $r ]['title'] ) ? (string) $sv['details'][ $r ]['title'] : '';
 			$d = isset( $sv['details'][ $r ]['desc'] ) && is_scalar( $sv['details'][ $r ]['desc'] ) ? (string) $sv['details'][ $r ]['desc'] : '';
-			$details[ $r ] = array( sanitize_text_field( $t ), sanitize_text_field( $d ) );
+			$f = isset( $sv['details'][ $r ]['file'] ) && is_scalar( $sv['details'][ $r ]['file'] ) ? (string) $sv['details'][ $r ]['file'] : '';
+			$details[ $r ] = array( sanitize_text_field( $t ), sanitize_text_field( $d ), lgf_cycling_sanitize_file( $f, 'gpx' ) );
 		}
 		$rout['details'] = $details;
 		$out['routes'][ $i ] = $rout;
@@ -239,7 +275,7 @@ function lgf_cycling_admin_enqueue() {
 		'lgf-cycling-admin',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-admin.css',
 		array(),
-		'1.0.33'
+		'1.0.35'
 	);
 }
 add_action( 'admin_enqueue_scripts', 'lgf_cycling_admin_enqueue' );
@@ -251,7 +287,7 @@ function lgf_cycling_menu_icon_enqueue() {
 		'lgf-cycling-admin-menu',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-admin-menu.css',
 		array(),
-		'1.0.33'
+		'1.0.35'
 	);
 }
 add_action( 'admin_enqueue_scripts', 'lgf_cycling_menu_icon_enqueue' );
@@ -460,9 +496,9 @@ function lgf_cycling_panel_pace( $i18n, $routes ) {
 							'file',
 							3,
 							'' === trim( $file )
-								? ''
+								? 'Only used when this package has no ZIP set on its plan card.'
 								: ( file_exists( get_stylesheet_directory() . '/assets/routes/' . $file )
-									? 'Found in assets/routes.'
+									? 'Found in assets/routes. Used as fallback for the package download button.'
 									: 'Missing from assets/routes — the download link will 404.' )
 						);
 						?>
@@ -486,11 +522,12 @@ function lgf_cycling_panel_plans( $i18n, $routes ) {
 				<?php
 				lgf_cycling_i18n_fields(
 					$i18n,
-					array( 'details_copy', 'download', 'nights' ),
+					array( 'details_copy', 'download_all', 'download_day', 'nights' ),
 					array( 'details_copy' => 3 ),
 					array(
-						'download' => 'Link label on every plan card, next to the GPX download.',
-						'nights'   => 'Unit word under the night count, e.g. nights / nuits / nachten.',
+						'download_all' => 'Package button under the plan: downloads the ZIP of every route in this package.',
+						'download_day' => 'Small link shown on each riding day that has a GPX file.',
+						'nights'       => 'Unit word under the night count, e.g. nights / nuits / nachten.',
 					)
 				);
 				?>
@@ -498,6 +535,14 @@ function lgf_cycling_panel_plans( $i18n, $routes ) {
 		</div>
 		<div class="lgf-cyc-grid lgf-cyc-grid--3 lgf-cyc-pad">
 			<?php foreach ( $routes as $i => $route ) : ?>
+				<?php
+				$zip = isset( $route['archive'] ) ? (string) $route['archive'] : '';
+				$zip_hint = '' === trim( $zip )
+					? 'Optional. Until a ZIP is set the button falls back to the single GPX on the pace card.'
+					: ( file_exists( get_stylesheet_directory() . '/assets/routes/' . $zip )
+						? 'Found in assets/routes.'
+						: 'Missing from assets/routes — the button will 404.' );
+				?>
 				<article class="lgf-cyc-plan">
 					<div class="lgf-cyc-plan__head">
 						<?php lgf_cycling_route_field( $i, $route, 'nights' ); ?>
@@ -511,7 +556,8 @@ function lgf_cycling_panel_plans( $i18n, $routes ) {
 						for ( $r = 0; $r < 6; $r++ ) :
 							$title = isset( $route['details'][ $r ][0] ) ? (string) $route['details'][ $r ][0] : '';
 							$desc  = isset( $route['details'][ $r ][1] ) ? (string) $route['details'][ $r ][1] : '';
-							$empty = '' === trim( $title ) && '' === trim( $desc );
+							$gpx   = isset( $route['details'][ $r ][2] ) ? (string) $route['details'][ $r ][2] : '';
+							$empty = '' === trim( $title ) && '' === trim( $desc ) && '' === trim( $gpx );
 							if ( $empty ) {
 								$blank++;
 							} else {
@@ -523,9 +569,13 @@ function lgf_cycling_panel_plans( $i18n, $routes ) {
 								<?php
 								lgf_cycling_compact_field( 'cycling[routes][' . (int) $i . '][details][' . (int) $r . '][title]', $title, 'Title' );
 								lgf_cycling_compact_field( 'cycling[routes][' . (int) $i . '][details][' . (int) $r . '][desc]', $desc, 'Description' );
+								lgf_cycling_compact_field( 'cycling[routes][' . (int) $i . '][details][' . (int) $r . '][file]', $gpx, 'GPX file (optional)' );
 								?>
 							</div>
 						<?php endfor; ?>
+					</div>
+					<div class="lgf-cyc-plan__foot">
+						<?php lgf_cycling_route_field( $i, $route, 'archive', 3, $zip_hint ); ?>
 					</div>
 				</article>
 			<?php endforeach; ?>
