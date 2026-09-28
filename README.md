@@ -11,26 +11,28 @@ direct-booking guard) + GitHub auto-updater.
 - `assets/css/cycling-itineraries.css` + `assets/css/cycling-palette.css` — front-end design for the cycling pages.
 - `inc/cycling-admin.php` — the Cycling EN/FR/NL editor form, one panel per live-page section.
 - `page-cycling-itineraries.php` — page template assigned to published cycling pages; delegates to the dynamic renderer so EN/FR/NL editor changes reach the front end.
-
-## Cycling GPX downloads
-
-Three places, all in `assets/routes/`:
-
-- Per riding day — set `details[r][file]` on a plan card in wp-admin. Days with a file get a small
-  "Download GPX" link under the itinerary entry; days without one (arrival, rest) show nothing.
-  `.gpx` only.
-- Per package — set `archive` on a plan card. The button under the plan downloads this ZIP.
-  `.zip` only.
-- Fallback — `file` on the pace card is only used for the package button when no ZIP is set.
-
-Filenames are sanitised to a bare name with an expected extension, so paths and other file types are
-rejected on save. The editor flags a name that is not present in `assets/routes/` as a 404 risk.
-Per-day links are per-language content; the file names themselves are not, so all three languages
-carry the same `details` files.
 - `assets/js/lgf-search-results.js` — cart + toggle logic.
 - `hotel-booking/shortcodes/search-results/errors.php` — custom empty/error states.
 - `functions-updater-top.php` — prepend at the very top of `functions.php` (GitHub updater, loads PUC from `lib/`).
 - `functions-append.php` — replace the old appended block at the bottom of `functions.php` (button label, price-label removal, cart title, enqueues CSS+JS v1.0.3).
+
+## Cycling GPX downloads
+
+Route files belong in `wp-content/uploads/lgf-cycling-routes/`, outside the theme directory that gets replaced during updates. The theme updater copies supported files from the old `assets/routes/` folder there before replacing the theme; existing filename fields continue to work.
+
+Three filename fields:
+
+- Per riding day — set `details[r][file]` on a plan card in wp-admin. Days with a file get a small
+  "Download GPX" link under the itinerary entry; days without one (arrival, rest) show nothing.
+  `.gpx` only. Upload files to `wp-content/uploads/lgf-cycling-routes/`.
+- Per package — set `archive` on a plan card. The button under the plan downloads this ZIP.
+  `.zip` only. Upload files to `wp-content/uploads/lgf-cycling-routes/`.
+- Fallback — `file` on the pace card is only used for the package button when no ZIP is set.
+
+Filenames are sanitised to a bare name with an expected extension, so paths and other file types are
+rejected on save. The editor checks both the persistent uploads folder and legacy `assets/routes/`.
+Filename fields are stored per language. Enter the same basename in each language tab when all three
+pages should link to the same file.
 
 ## One-time GitHub setup
 

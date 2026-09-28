@@ -179,8 +179,8 @@ function lgf_cycling_route_field_spec() {
 		'elevation'   => array( 'Stat: climbing', 'text' ),
 		'rides'       => array( 'Card footer: rides', 'text' ),
 		'tag'         => array( 'Top tag', 'text' ),
-		'file'        => array( 'Fallback GPX filename (assets/routes/)', 'text', 'gpx' ),
-		'archive'     => array( 'Package ZIP filename (assets/routes/)', 'text', 'zip' ),
+		'file'        => array( 'Fallback GPX filename (uploads/lgf-cycling-routes/)', 'text', 'gpx' ),
+		'archive'     => array( 'Package ZIP filename (uploads/lgf-cycling-routes/)', 'text', 'zip' ),
 	);
 }
 
@@ -199,6 +199,109 @@ function lgf_cycling_sanitize_file( $raw, $allowed = 'gpx,zip,fit,tcx,kmz' ) {
 	}
 	return $raw;
 }
+
+function lgf_cycling_route_storage_paths( $create = false ) {
+	$uploads = wp_get_upload_dir();
+	if ( empty( $uploads['basedir'] ) || empty( $uploads['baseurl'] ) ) {
+		return array();
+	}
+	$dir = trailingslashit( $uploads['basedir'] ) . 'lgf-cycling-routes';
+	if ( $create && ! is_dir( $dir ) ) {
+		wp_mkdir_p( $dir );
+	}
+	return array(
+		'dir' => $dir,
+		'url' => trailingslashit( $uploads['baseurl'] ) . 'lgf-cycling-routes',
+	);
+}
+
+function lgf_cycling_route_file_info( $raw ) {
+	$filename = lgf_cycling_sanitize_file( $raw );
+	if ( '' === $filename ) {
+		return array( 'exists' => false, 'path' => '', 'url' => '', 'location' => '' );
+	}
+
+	$storage    = lgf_cycling_route_storage_paths( is_admin() );
+	$legacy_dir = get_stylesheet_directory() . '/assets/routes';
+	$legacy_url = trailingslashit( get_stylesheet_directory_uri() ) . 'assets/routes';
+	if ( ! empty( $storage['dir'] ) ) {
+		$path = trailingslashit( $storage['dir'] ) . $filename;
+		$url  = trailingslashit( $storage['url'] ) . rawurlencode( $filename );
+		if ( is_file( $path ) ) {
+			return array( 'exists' => true, 'path' => $path, 'url' => $url, 'location' => 'wp-content/uploads/lgf-cycling-routes/' );
+		}
+	}
+
+	$legacy_path = trailingslashit( $legacy_dir ) . $filename;
+	if ( is_file( $legacy_path ) ) {
+		return array( 'exists' => true, 'path' => $legacy_path, 'url' => trailingslashit( $legacy_url ) . rawurlencode( $filename ), 'location' => 'legacy assets/routes/' );
+	}
+
+	if ( ! empty( $storage['dir'] ) ) {
+		return array(
+			'exists'   => false,
+			'path'     => trailingslashit( $storage['dir'] ) . $filename,
+			'url'      => trailingslashit( $storage['url'] ) . rawurlencode( $filename ),
+			'location' => 'wp-content/uploads/lgf-cycling-routes/',
+		);
+	}
+	return array( 'exists' => false, 'path' => $legacy_path, 'url' => trailingslashit( $legacy_url ) . rawurlencode( $filename ), 'location' => 'legacy assets/routes/' );
+}
+
+function lgf_cycling_route_file_url( $filename ) {
+	$info = lgf_cycling_route_file_info( $filename );
+	return $info['url'];
+}
+
+function lgf_cycling_preserve_route_files_before_theme_update( $response, $hook_extra ) {
+	if ( is_wp_error( $response ) || ! is_array( $hook_extra ) ) {
+		return $response;
+	}
+	if ( 'theme' !== ( isset( $hook_extra['type'] ) ? $hook_extra['type'] : '' ) || get_stylesheet() !== ( isset( $hook_extra['theme'] ) ? $hook_extra['theme'] : '' ) ) {
+		return $response;
+	}
+
+	$source = get_stylesheet_directory() . '/assets/routes';
+	if ( ! is_dir( $source ) ) {
+		return $response;
+	}
+	$storage = lgf_cycling_route_storage_paths( true );
+	if ( empty( $storage['dir'] ) || ! is_dir( $storage['dir'] ) || ! wp_is_writable( $storage['dir'] ) ) {
+		return new WP_Error( 'lgf_route_storage_unavailable', 'Cycling route files were not preserved. Make wp-content/uploads writable, then retry the theme update.' );
+	}
+
+	$allowed = array( 'gpx', 'zip', 'fit', 'tcx', 'kmz' );
+	$entries = scandir( $source );
+	if ( false === $entries ) {
+		return new WP_Error( 'lgf_route_source_unreadable', 'Cycling route files could not be read before the theme update.' );
+	}
+	foreach ( $entries as $entry ) {
+		$from = trailingslashit( $source ) . $entry;
+		if ( ! is_file( $from ) || ! in_array( strtolower( pathinfo( $entry, PATHINFO_EXTENSION ) ), $allowed, true ) ) {
+			continue;
+		}
+		$filename = lgf_cycling_sanitize_file( $entry );
+		if ( '' === $filename ) {
+			continue;
+		}
+		$to = trailingslashit( $storage['dir'] ) . $filename;
+		if ( ! file_exists( $to ) && ! copy( $from, $to ) ) {
+			return new WP_Error( 'lgf_route_preservation_failed', 'Cycling route file ' . $filename . ' could not be preserved. Make wp-content/uploads writable, then retry the theme update.' );
+		}
+	}
+	return $response;
+}
+add_filter( 'upgrader_pre_install', 'lgf_cycling_preserve_route_files_before_theme_update', 10, 2 );
+
+function lgf_cycling_purge_pages_after_theme_update( $upgrader, $hook_extra ) {
+	if ( ! is_array( $hook_extra ) || 'theme' !== ( isset( $hook_extra['type'] ) ? $hook_extra['type'] : '' ) || get_stylesheet() !== ( isset( $hook_extra['theme'] ) ? $hook_extra['theme'] : '' ) ) {
+		return;
+	}
+	foreach ( array_values( lgf_cycling_languages() ) as $lang ) {
+		lgf_cycling_purge_page_cache( $lang );
+	}
+}
+add_action( 'upgrader_process_complete', 'lgf_cycling_purge_pages_after_theme_update', 10, 2 );
 
 function lgf_cycling_sanitize( $in ) {
 	$defaults = lgf_cycling_defaults();
@@ -275,7 +378,7 @@ function lgf_cycling_admin_enqueue() {
 		'lgf-cycling-admin',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-admin.css',
 		array(),
-		'1.0.36'
+		'1.0.37'
 	);
 }
 add_action( 'admin_enqueue_scripts', 'lgf_cycling_admin_enqueue' );
@@ -287,7 +390,7 @@ function lgf_cycling_menu_icon_enqueue() {
 		'lgf-cycling-admin-menu',
 		get_stylesheet_directory_uri() . '/assets/css/cycling-admin-menu.css',
 		array(),
-		'1.0.36'
+		'1.0.37'
 	);
 }
 add_action( 'admin_enqueue_scripts', 'lgf_cycling_menu_icon_enqueue' );
@@ -469,6 +572,7 @@ function lgf_cycling_panel_pace( $i18n, $routes ) {
 		<div class="lgf-cyc-grid lgf-cyc-grid--3 lgf-cyc-pad">
 			<?php foreach ( $routes as $i => $route ) : ?>
 				<?php $file = isset( $route['file'] ) ? (string) $route['file'] : ''; ?>
+				<?php $file_info = lgf_cycling_route_file_info( $file ); ?>
 				<article class="lgf-cyc-card">
 					<div class="lgf-cyc-card__top">
 						<?php
@@ -496,10 +600,10 @@ function lgf_cycling_panel_pace( $i18n, $routes ) {
 							'file',
 							3,
 							'' === trim( $file )
-								? 'Only used when this package has no ZIP set on its plan card.'
-								: ( file_exists( get_stylesheet_directory() . '/assets/routes/' . $file )
-									? 'Found in assets/routes. Used as fallback for the package download button.'
-									: 'Missing from assets/routes — the download link will 404.' )
+								? 'Upload to wp-content/uploads/lgf-cycling-routes/. Only used when this package has no ZIP.'
+								: ( $file_info['exists']
+									? 'Found in ' . $file_info['location'] . ' Used as fallback for the package download button.'
+									: 'Missing from wp-content/uploads/lgf-cycling-routes/ — the download link will 404.' )
 						);
 						?>
 					</div>
@@ -514,6 +618,7 @@ function lgf_cycling_panel_plans( $i18n, $routes ) {
 	?>
 	<section class="lgf-cyc-panel" id="lgf-cyc-plan">
 		<h2>Week plan — one card per route</h2>
+		<p>Upload GPX and ZIP files to <code>wp-content/uploads/lgf-cycling-routes/</code>. Files in the old theme folder are copied there before theme updates.</p>
 		<div class="lgf-cyc-head">
 			<div class="lgf-cyc-col">
 				<?php lgf_cycling_i18n_fields( $i18n, array( 'details_kicker', 'details_title_1', 'details_title_2' ) ); ?>
@@ -537,11 +642,12 @@ function lgf_cycling_panel_plans( $i18n, $routes ) {
 			<?php foreach ( $routes as $i => $route ) : ?>
 				<?php
 				$zip = isset( $route['archive'] ) ? (string) $route['archive'] : '';
+				$zip_info = lgf_cycling_route_file_info( $zip );
 				$zip_hint = '' === trim( $zip )
-					? 'Optional. Until a ZIP is set the button falls back to the single GPX on the pace card.'
-					: ( file_exists( get_stylesheet_directory() . '/assets/routes/' . $zip )
-						? 'Found in assets/routes.'
-						: 'Missing from assets/routes — the button will 404.' );
+					? 'Optional. Upload to wp-content/uploads/lgf-cycling-routes/. Until set, button falls back to the single GPX.'
+					: ( $zip_info['exists']
+						? 'Found in ' . $zip_info['location']
+						: 'Missing from wp-content/uploads/lgf-cycling-routes/ — the button will 404.' );
 				?>
 				<article class="lgf-cyc-plan">
 					<div class="lgf-cyc-plan__head">
@@ -637,6 +743,7 @@ function lgf_cycling_render_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( 'Unauthorized' );
 	}
+	lgf_cycling_route_storage_paths( true );
 	$lang = lgf_cycling_current_lang();
 	$page = 'lgf-cycling-' . $lang;
 	if ( isset( $_POST['lgf_cycling_save'] ) ) {

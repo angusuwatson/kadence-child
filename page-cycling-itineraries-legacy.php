@@ -397,7 +397,7 @@ if ( function_exists( 'lgf_cycling_data' ) ) {
 						}
 						$day++;
 						?>
-						<li><span><?php echo esc_html( sprintf( '%02d', $day ) ); ?></span><div><strong><?php echo esc_html( $day_title ); ?></strong><small><?php echo esc_html( $day_desc ); ?></small><?php if ( '' !== trim( $day_gpx ) ) : ?><a class="lgf-cycling-day__gpx" href="<?php echo esc_url( $theme_uri . '/assets/routes/' . $day_gpx ); ?>" download><?php echo esc_html( $day_label ); ?> <span aria-hidden="true">↓</span></a><?php endif; ?></div></li>
+						<li><span><?php echo esc_html( sprintf( '%02d', $day ) ); ?></span><div><strong><?php echo esc_html( $day_title ); ?></strong><small><?php echo esc_html( $day_desc ); ?></small><?php if ( '' !== trim( $day_gpx ) ) : ?><a class="lgf-cycling-day__gpx" href="<?php echo esc_url( lgf_cycling_route_file_url( $day_gpx ) ); ?>" download><?php echo esc_html( $day_label ); ?> <span aria-hidden="true">↓</span></a><?php endif; ?></div></li>
 					<?php endforeach; ?>
 				</ol><?php
 				$pkg = isset( $route['archive'] ) ? trim( (string) $route['archive'] ) : '';
@@ -406,7 +406,7 @@ if ( function_exists( 'lgf_cycling_data' ) ) {
 				}
 				$all_label = isset( $i18n['download_all'] ) ? $i18n['download_all'] : ( isset( $i18n['download'] ) ? $i18n['download'] : 'GPX' );
 				if ( '' !== $pkg ) :
-					?><a class="lgf-cycling-download" href="<?php echo esc_url( $theme_uri . '/assets/routes/' . $pkg ); ?>" download><?php echo esc_html( $all_label ); ?> <span aria-hidden="true">↓</span></a><?php
+					?><a class="lgf-cycling-download" href="<?php echo esc_url( lgf_cycling_route_file_url( $pkg ) ); ?>" download><?php echo esc_html( $all_label ); ?> <span aria-hidden="true">↓</span></a><?php
 				endif;
 				?></div>
 			</div>

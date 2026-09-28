@@ -377,7 +377,7 @@ function lgf_cycling_page_pattern( $lang, $img ) {
 
 		$html .= '</div>' . "\n" . '<!-- /wp:column -->' . "\n" . '</div>' . "\n" . '<!-- /wp:columns -->' . "\n";
 		$html .= '</div>' . "\n" . '<!-- /wp:column -->' . "\n" . '</div>' . "\n" . '<!-- /wp:columns -->' . "\n";
-		$html .= '<!-- wp:paragraph {"className":"lgf-cycling-download"} -->' . "\n" . '<p class="lgf-cycling-download"><a href="' . esc_url( get_stylesheet_directory_uri() . '/assets/routes/' . $route['file'] ) . '" download>' . $i18n['download'] . ' <span aria-hidden="true">↓</span></a></p>' . "\n" . '<!-- /wp:paragraph -->' . "\n";
+		$html .= '<!-- wp:paragraph {"className":"lgf-cycling-download"} -->' . "\n" . '<p class="lgf-cycling-download"><a href="' . esc_url( lgf_cycling_route_file_url( $route['file'] ) ) . '" download>' . $i18n['download'] . ' <span aria-hidden="true">↓</span></a></p>' . "\n" . '<!-- /wp:paragraph -->' . "\n";
 		$html .= '</div>' . "\n" . '<!-- /wp:group -->' . "\n";
 	}
 
